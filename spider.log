@@ -1,0 +1,25 @@
+2020-04-29 15:46:20,145 - DEBUG - root - Database not found
+2020-04-29 15:46:20,167 - DEBUG - root - New Database created
+2020-04-29 15:46:20,180 - DEBUG - root - config complete
+2020-04-29 15:46:20,239 - INFO - apscheduler.scheduler - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2020-04-29 15:46:20,239 - INFO - apscheduler.scheduler - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2020-04-29 15:46:20,239 - INFO - apscheduler.scheduler - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2020-04-29 15:46:20,240 - INFO - apscheduler.scheduler - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2020-04-29 15:46:20,240 - INFO - apscheduler.scheduler - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2020-04-29 15:46:20,241 - INFO - apscheduler.scheduler - Adding job tentatively -- it will be properly scheduled when the scheduler starts
+2020-04-29 15:46:20,242 - INFO - apscheduler.scheduler - Added job "arxiv.main" to job store "default"
+2020-04-29 15:46:20,242 - INFO - apscheduler.scheduler - Added job "prl.main" to job store "default"
+2020-04-29 15:46:20,242 - INFO - apscheduler.scheduler - Added job "prx.main" to job store "default"
+2020-04-29 15:46:20,242 - INFO - apscheduler.scheduler - Added job "prb.main" to job store "default"
+2020-04-29 15:46:20,242 - INFO - apscheduler.scheduler - Added job "prresearch.main" to job store "default"
+2020-04-29 15:46:20,243 - INFO - apscheduler.scheduler - Added job "PaperSpider.main" to job store "default"
+2020-04-29 15:46:20,243 - INFO - apscheduler.scheduler - Scheduler started
+2020-04-29 15:46:20,243 - DEBUG - apscheduler.scheduler - Looking for jobs to run
+2020-04-29 15:46:20,243 - INFO - apscheduler.executors.default - Running job "PaperSpider.main (trigger: date[2020-04-29 07:46:20 UTC], next run at: 2020-04-29 07:46:20 UTC)" (scheduled at 2020-04-29 07:46:20.241663+00:00)
+2020-04-29 15:46:20,243 - INFO - apscheduler.scheduler - Removed job arxiv_test
+2020-04-29 15:46:20,244 - DEBUG - apscheduler.scheduler - Next wakeup is due at 2020-04-29 22:00:00+00:00 (in 51219.756606 seconds)
+2020-04-29 15:46:20,253 - DEBUG - urllib3.connectionpool - Starting new HTTPS connection (1): arxiv.org:443
+2020-04-29 15:46:27,271 - DEBUG - urllib3.connectionpool - https://arxiv.org:443 "GET /list/cond-mat.mes-hall/new HTTP/1.1" 200 19113
+2020-04-29 15:46:29,297 - INFO - root - 21 new papers
+2020-04-29 15:46:29,480 - INFO - root - email 8 new articals to jincao
+2020-04-29 15:46:30,647 - INFO - apscheduler.executors.default - Job "PaperSpider.main (trigger: date[2020-04-29 07:46:20 UTC], next run at: 2020-04-29 07:46:20 UTC)" executed successfully

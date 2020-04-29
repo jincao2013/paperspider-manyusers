@@ -1,0 +1,16 @@
+MANIFEST.in
+README.md
+server.py
+setup.py
+paperspider/__init__.py
+paperspider/config.py
+paperspider/daemon.py
+paperspider/dbAPI.py
+paperspider/spider.py
+paperspider/test.py
+paperspider_manyusers.egg-info/PKG-INFO
+paperspider_manyusers.egg-info/SOURCES.txt
+paperspider_manyusers.egg-info/dependency_links.txt
+paperspider_manyusers.egg-info/top_level.txt
+test/arxiv_tmp.html
+test/paper.html

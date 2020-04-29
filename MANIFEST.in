@@ -1,0 +1,5 @@
+include README.md
+include server.py
+include paperspider/sciDB.sqlite
+include paperspider/*.py
+include test/*
