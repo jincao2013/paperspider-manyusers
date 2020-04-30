@@ -29,3 +29,7 @@ MANIFEST.in
 
 .DS_Store
 */.DS_Store
+
+dev doc.md
+db_backup/
+

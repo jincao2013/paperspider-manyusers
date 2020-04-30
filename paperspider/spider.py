@@ -192,46 +192,6 @@ class PaperSpider(object):
             else:
                 self.logger.info('email no articals to {}'.format(self.user_names[i]))
 
-    # def send_email(self, receiver, content):
-    #
-    #     # receiver = 'caojin.phy@gmail.com' # receiver can be a list
-    #     # receiver = '498612563@qq.com' # receiver can be a list
-    #     content_head = """
-    #     <p>
-    #     Dear subscriber, <br/>
-    #     Here attached recent updated papers on <mark>{}</mark>.  <br/>
-    #     Best,  <br/>
-    #     PaperSpider <br/>
-    #     </p>
-    #
-    #     """.format(self.journal_name)
-    #     title = '[Paper Spider] New Articles'
-    #
-    #     # email of sender
-    #     sender = 'paperspider@foxmail.com'
-    #     user = 'paperspider@foxmail.com'
-    #     password = 'btdzbzkwtgoibebg'
-    #     # SMTP server of sender
-    #     smtpserver = 'smtp.qq.com'
-    #     smtp_port = 587
-    #
-    #     message = MIMEMultipart('alternative')
-    #     message['From'] = Header(sender, 'utf-8')
-    #     message['To'] = Header(receiver, 'utf-8')
-    #     message['Subject'] = Header(title, 'utf-8')
-    #
-    #     message.attach(MIMEText(content_head + content, 'html', 'utf-8'))
-    #     # message.attach(MIMEText(content, 'html', 'utf-8'))
-    #
-    #     smtp = smtplib.SMTP()
-    #     # smtp = smtplib.SMTP_SSL()
-    #     smtp.connect(smtpserver, smtp_port)  # default port 25 for smtp (unsafe)
-    #
-    #     # smtp.ehlo(smtpserver)
-    #     smtp.login(user, password)  # 登陆smtp服务器
-    #     smtp.sendmail(sender, receiver, message.as_string())  # 发送邮件 ，这里有三个参数
-    #     smtp.quit()
-
 
 class Aps(object):
 
