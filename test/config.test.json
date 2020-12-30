@@ -1,0 +1,32 @@
+{
+  "sender": {
+    "email": "paperspider@foxmail.com",
+    "password": "btdzbzkwtgoibebg",
+    "smtp_server": "smtp.qq.com",
+    "smtp_port": "587"
+  },
+  "receiver": [
+    {
+      "name": "jincao",
+      "email": "caojin.phy@gmail.com",
+      "tags": ["APS:selected", "Tag:topo"]
+    }
+  ],
+  "tags": [
+    {
+      "name": "APS:selected",
+      "dict": ["PRL:Cond-mat", "PRX:selected"]
+    },
+    {
+      "name": "Tag:topo",
+      "dict": ["topological", "semimetal", "weyl"]
+    }
+  ],
+  "database": {
+    "path": "./paperspider-db/sciDB.sqlite"
+  },
+  "log": {
+    "path": "./paperspider.log",
+    "loglevel": "DEBUG"
+  }
+}

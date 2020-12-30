@@ -10,6 +10,7 @@ __date__ = "Feb. 7, 2020"
 
 import os
 import sys
+import json
 import time
 import sqlite3
 import logging
@@ -19,20 +20,27 @@ from paperspider.spider import Sender
 
 class Config(object):
 
-    def __init__(self):
-        self.logger = self.set_logger()
+    def __init__(self, config_path='/etc/paperspider/config.json'):
+        self.config_path = config_path
+        self.config = self.load_config_json()
 
         self.wdir = os.getcwd()
-        self.db_path = os.path.join(self.wdir, 'paperspider-db/sciDB.sqlite')
+        # self.db_path = os.path.join(self.wdir, 'paperspider-db/sciDB.sqlite')
+        self.db_path = self.config['database']['path']
+        self.log_path = self.config['log']['path']
+        self.loglevel = self.config['log']['loglevel']
+
+        self.logger = self.set_logger()
+
         self.init_db()
         self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.c = self.conn.cursor()
 
         self.sender = Sender(
-            user='******@foxmail.com',
-            password='******',
-            smtp_server='smtp.qq.com',
-            smtp_port=587,
+            user=self.config['sender']['email'],
+            password=self.config['sender']['password'],
+            smtp_server=self.config['sender']['smtp_server'],
+            smtp_port=self.config['sender']['smtp_port'],
         )
         self.tags = []
         self.users = []
@@ -53,24 +61,29 @@ class Config(object):
 
         self.logger.debug('config complete')
 
+    def load_config_json(self):
+        with open(self.config_path, 'r') as f:
+            config = json.load(f)
+        return config
+
     def init_db(self):
         db_init_path = os.path.join(self.wdir, 'paperspider/sciDB.init.sql')
         if not os.path.exists(self.db_path):
             self.logger.debug('Database not found')
             os.system('sqlite3 {} < {}'.format(self.db_path, db_init_path))
-            self.logger.debug('New Database created')
+            self.logger.debug('New Database created at {}'.format(self.db_path))
 
     def set_logger(self):
         logger = logging.getLogger()
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(self.loglevel)
 
         # console Handler
         consoleHandler = logging.StreamHandler()
-        consoleHandler.setLevel(logging.DEBUG)
+        consoleHandler.setLevel(self.loglevel)
 
         # file Handler
-        fileHandler = logging.FileHandler('spider.log', mode='w', encoding='UTF-8')
-        fileHandler.setLevel(logging.NOTSET)
+        fileHandler = logging.FileHandler(self.log_path, mode='w', encoding='UTF-8')
+        fileHandler.setLevel(self.loglevel)
 
         # Formatter
         formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s')
@@ -84,35 +97,45 @@ class Config(object):
         return logger
 
     def set_tags(self):
-        _tag = Tag(self.conn, 'APS:selected')
-        _tag.db_creat()
-        _tag.dict = ['PRL:Cond-mat', 'PRX:selected']
-        self.tags.append(_tag)
+        # '''
+        #   Build-in tags
+        # '''
+        # _tag = Tag(self.conn, 'APS:selected')
+        # _tag.db_creat()
+        # _tag.dict = ['PRL:Cond-mat', 'PRX:selected']
+        # self.tags.append(_tag)
+        #
+        # _tag = Tag(self.conn, 'Tag:topo')
+        # _tag.db_creat()
+        # _tag.dict = ['topological', 'weyl', 'semimetal']
+        # self.tags.append(_tag)
+        #
+        # _tag = Tag(self.conn, 'Tag:twist')
+        # _tag.db_creat()
+        # _tag.dict = ['twisted graphene', 'twist graphene', 'magic angle']
+        # self.tags.append(_tag)
+        #
+        # _tag = Tag(self.conn, 'Tag:response')
+        # _tag.db_creat()
+        # _tag.dict = ['green function', 'linear response',
+        #              'nonlinear response', 'nonlinear optical',
+        #              'Circular Photogalvanic', 'CPGE', 'shift current']
+        # self.tags.append(_tag)
 
-        _tag = Tag(self.conn, 'Tag:topo')
-        _tag.db_creat()
-        _tag.dict = ['topological', 'weyl', 'semimetal']
-        self.tags.append(_tag)
-
-        _tag = Tag(self.conn, 'Tag:twist')
-        _tag.db_creat()
-        _tag.dict = ['twisted graphene', 'twist graphene', 'magic angle']
-        self.tags.append(_tag)
-
-        _tag = Tag(self.conn, 'Tag:response')
-        _tag.db_creat()
-        _tag.dict = ['green function', 'linear response',
-                     'nonlinear response', 'nonlinear optical',
-                     'Circular Photogalvanic', 'CPGE', 'shift current']
-        self.tags.append(_tag)
+        tags = self.config['tags']
+        for i in tags:
+            _tag = Tag(self.conn, i['name'])
+            _tag.db_creat()
+            _tag.dict = i['dict']
+            self.tags.append(_tag)
 
     def set_users(self):
-        _user = User(self.conn, 'jincao')
-        _user.db_creat()
-        _user.email = 'caojin.phy@gmail.com'
-        _tags = ['APS:selected', 'Tag:topo', 'Tag:twist', 'Tag:response']
-        _user.pair_tags(_tags, mode='update')
-        self.users.append(_user)
+        # _user = User(self.conn, 'jincao')
+        # _user.db_creat()
+        # _user.email = 'caojin.phy@gmail.com'
+        # _tags = ['APS:selected', 'Tag:topo', 'Tag:twist', 'Tag:response']
+        # _user.pair_tags(_tags, mode='update')
+        # self.users.append(_user)
 
         # _user = User(self.conn, 'llp')
         # _user.db_creat()
@@ -120,3 +143,11 @@ class Config(object):
         # _user.pair_tags(['topo'], mode='update')
         # self.users.append(_user)
 
+        users = self.config['receiver']
+        for i in users:
+            _user = User(self.conn, i['name'])
+            _user.db_creat()
+            _user.email = i['email']
+            _tags = i['tags']
+            _user.pair_tags(_tags, mode='update')
+            self.users.append(_user)

@@ -103,13 +103,26 @@ def schedule(config):
 
 
 def main():
-    config = Config()
+    usage = 'usage: python3 server.py /etc/paperspider/config.json'
+    try:
+        config_path = sys.argv[1]
+    except IndexError:
+        print(usage)
+        sys.exit(1)
+
+    config = Config(config_path)
     initialization(config)
     schedule(config)
 
 
 if __name__ == '__main__':
     main()
+
+    '''
+      Debug
+    '''
+    # config_path = './test/config.test.json'
+    # config = Config(config_path)
 
 
     # config = Config()

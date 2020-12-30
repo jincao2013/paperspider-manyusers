@@ -1,0 +1,43 @@
+{
+  "sender": {
+    "email": "paperspider@foxmail.com",
+    "password": "btdzbzkwtgoibebg",
+    "smtp_server": "smtp.qq.com",
+    "smtp_port": "587"
+  },
+  "receiver": [
+    {
+      "name": "jincao",
+      "email": "caojin.phy@gmail.com",
+      "tags": ["APS:selected", "Tag:topo", "Tag:twist", "Tag:response"]
+    }
+  ],
+  "tags": [
+    {
+      "name": "APS:selected",
+      "dict": ["PRL:Cond-mat", "PRX:selected"]
+    },
+    {
+      "name": "Tag:topo",
+      "dict": ["topological", "semimetal", "weyl"]
+    },
+    {
+      "name": "Tag:twist",
+      "dict": ["twisted graphene", "twist graphene", "magic angle"]
+    },
+    {
+      "name": "Tag:response",
+      "dict": [
+        "green function", "linear response", "nonlinear response", "nonlinear optical",
+        "Circular Photogalvanic", "CPGE", "shift current"
+      ]
+    }
+  ],
+  "database": {
+    "path": "/opt/paperspider-db/sciDB.sqlite"
+  },
+  "log": {
+    "path": "/opt/paperspider/paperspider.log",
+    "loglevel": "DEBUG"
+  }
+}
