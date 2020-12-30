@@ -4,12 +4,6 @@ from paperspider.version import __version__, __author__, __email__
 
 packages_paperspider = [
     'paperspider',
-    'paperspider.config',
-    'paperspider.daemon',
-    'paperspider.dbAPI',
-    'paperspider.spider',
-    'paperspider.test',
-    'paperspider.version',
 ]
 
 setup(
