@@ -21,15 +21,20 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+*.egg-info
 MANIFEST.in
 
-*.log
 
+# pycharm
 .idea/
 
+# macOS
 .DS_Store
 */.DS_Store
 
+
+# custom
 dev doc.md
 db_backup/
 
+*.log
