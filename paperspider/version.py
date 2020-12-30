@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# The paperspider-manyusers code is hosted on GitHub:
+# The paperspider code is hosted on GitHub:
 #
 # https://github.com/jincao2013/paperspider-manyusers
 
-from paperspider.version import __version__, __author__, __email__
+__author__ = 'Jin Cao'
+__email__ = "caojin.phy@gmail.com"
+__version__ = "1.0.0"
