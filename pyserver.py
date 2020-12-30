@@ -102,14 +102,35 @@ def schedule(config):
         scheduler.shutdown()
 
 
-def main():
-    config = Config()
-    initialization(config)
-    schedule(config)
+class DaemonMaster(Daemon):
+    def __init__(self, *args, **kwargs):
+        super(DaemonMaster, self).__init__(*args, **kwargs)
+
+    def run(self):
+        config = Config()
+        initialization(config)
+        schedule(config)
+
+    # def run(self):
+    #     # used for debug
+    #     test_run()
+
+
+def main(foreground=False):
+    if not foreground:
+        arg = sys.argv[1]
+        if arg in ('start', 'stop', 'restart'):
+            # d = DaemonMaster('spiderd.pid', verbose=1, stdout='./debug.out', stderr='./debug.out') # used for debug
+            d = DaemonMaster('spiderd.pid', verbose=1)
+            getattr(d, arg)()  # i.e. d.start()
+    else:
+        # Foreground debug
+        d = DaemonMaster('spiderd.pid', verbose=1, stdout='./debug.out', stderr='./debug.out')
+        d.run()
 
 
 if __name__ == '__main__':
-    main()
+    main(foreground=False)
 
 
     # config = Config()
