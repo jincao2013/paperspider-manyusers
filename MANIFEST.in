@@ -1,5 +1,18 @@
 include README.md
+include LICENSE
+include .gitignore
+
 include server.py
-include paperspider/sciDB.sqlite
-include paperspider/*.py
-include test/*
+include pyserver.py
+
+recursive-include paperspider *
+recursive-include paperspider-db *
+recursive-include test *
+recursive-include service.d *
+
+global-exclude *.pyc
+global-exclude .DS_Store
+global-exclude .idea
+global-exclude __pycache__
+
+prune db_backup
