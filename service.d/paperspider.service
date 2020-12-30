@@ -1,0 +1,15 @@
+[Unit]
+Description=paperspider
+Documentation=https://github.com/jincao2013/paperspider-manyusers
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+PIDFile=/run/paperspider.pid
+ExecStart=python3 server.py
+Restart=on-failure
+RestartPreventExitStatus=23
+
+[Install]
+WantedBy=multi-user.target
