@@ -1,19 +1,32 @@
 from setuptools import setup
+from paperspider.version import __version__, __author__, __email__
 
-# for release package: python setup.py sdist
+
+packages_paperspider = [
+    'paperspider',
+    'paperspider.config',
+    'paperspider.daemon',
+    'paperspider.dbAPI',
+    'paperspider.spider',
+    'paperspider.test',
+    'paperspider.version',
+]
+
 setup(
-    name='paperspider-manyusers',
-    version='1.0.0',
-    packages=['paperspider', 'test'],
+    name='paperspider',
+    version=__version__,
     include_package_data=True,
-    url='',
-    license='',
-    author='jincao',
-    author_email='caojin.phy@gmail.com',
-    description=''
+    packages=packages_paperspider,
+    # packages=setuptools.find_packages(),
+    url='https://github.com/jincao2013/paperspider-manyusers',
+    license='Apache License, Version 2.0',
+    author=__author__,
+    author_email=__email__,
+    description='This is the paperspider module.',
+    python_requires='>=3.6',
+    install_requires=['numpy', 'pytz', 'apscheduler', 'sqlite3', 'logging'],
 )
-
 '''
   To release package, make sure:
-  1. server.py, foreground=False 
+  1. server.py, foreground=False
 '''
