@@ -19,7 +19,6 @@
 __date__ = "Feb. 7, 2020"
 
 import os
-import sys
 import json
 import time
 import sqlite3
@@ -77,7 +76,7 @@ class Config(object):
         return config
 
     def init_db(self):
-        db_init_path = os.path.join(self.wdir, 'paperspider/sciDB.init.sql')
+        db_init_path = os.path.join(os.path.split(self.db_path)[0], 'sciDB.init.sql')
         if not os.path.exists(self.db_path):
             self.logger.debug('Database not found')
             os.system('sqlite3 {} < {}'.format(self.db_path, db_init_path))

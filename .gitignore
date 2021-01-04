@@ -38,3 +38,5 @@ dev doc.md
 db_backup/
 
 *.log
+
+paperspider-db/sciDB.sqlite

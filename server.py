@@ -21,16 +21,11 @@ __date__ = "Feb. 7, 2020"
 import os
 import sys
 import time
-# import json
-# import atexit
-# import sqlite3
 
 from pytz import utc
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
-# from apscheduler.schedulers.blocking import BlockingScheduler
 
-from paperspider.daemon import Daemon
 from paperspider.config import Config
 from paperspider.spider import Arxiv, ApsPRL, ApsPRX, ApsPRB, ApsPRResearch
 
@@ -66,12 +61,7 @@ def test_run(config=None):
         print('[INFO] Exit.')
 
 
-def initialization(config):
-    conn = config.conn
-
-
 def schedule(config):
-
     arxiv = Arxiv(config)
     prl = ApsPRL(config)
     prx = ApsPRX(config)
@@ -121,7 +111,6 @@ def main():
         sys.exit(1)
 
     config = Config(config_path)
-    initialization(config)
     schedule(config)
 
 
@@ -136,7 +125,6 @@ if __name__ == '__main__':
 
 
     # config = Config()
-    # initialization(config)
     # arxiv = Arxiv(config)
     # prl = Aps(config)
     # arxiv.main()

@@ -11,10 +11,11 @@
 ## Usage
 
 To get start:
-1. set path of database in config.json
-2. set path of log in config.json
-3. set user preferences in config.json
-4. python3 server.py <path_of_config.json> 
+1. copy `paperspider-db` to `/opt`
+2. set path of database in config.json
+3. set path of log in config.json
+4. set user preferences in config.json
+5. python3 server.py <path_of_config.json> 
 
 This will link to a existed database or creating a new one.
 
