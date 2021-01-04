@@ -7,7 +7,7 @@ Wants=network.target
 [Service]
 Type=simple
 PIDFile=/run/paperspider.pid
-ExecStart=python3 server.py
+ExecStart=python3 /opt/paperspider/server.py /etc/paperspider/config.json
 Restart=on-failure
 RestartPreventExitStatus=23
 

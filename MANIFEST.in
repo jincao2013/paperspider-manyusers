@@ -4,6 +4,7 @@ include .gitignore
 
 include server.py
 include pyserver.py
+include config.json
 
 recursive-include paperspider *
 recursive-include paperspider-db *
