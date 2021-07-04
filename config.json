@@ -1,9 +1,10 @@
 {
   "sender": {
-    "email": "paperspider@163.com",
-    "password": "JWMHYJVVWDBUZIOW",
-    "smtp_server": "smtp.163.com",
-    "smtp_port": "587"
+    "email": "paperspider@foxmail.com",
+    "password": "btdzbzkwtgoibebg",
+    "smtp_server": "smtp.qq.com",
+    "smtp_port": "587",
+    "ssl": false
   },
   "receiver": [
     {

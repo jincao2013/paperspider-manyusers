@@ -50,6 +50,7 @@ class Config(object):
             password=self.config['sender']['password'],
             smtp_server=self.config['sender']['smtp_server'],
             smtp_port=self.config['sender']['smtp_port'],
+            ssl=self.config['sender']['ssl'],
         )
         self.tags = []
         self.users = []

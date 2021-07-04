@@ -121,7 +121,7 @@ if __name__ == '__main__':
       Debug
     '''
     # config_path = './test/config.test.json'
-    # config = Config(config_path)
+    # config = Config(config_path)l
 
 
     # config = Config()

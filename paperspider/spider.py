@@ -50,13 +50,14 @@ def echo_time(int_time=None):
 '''
 class Sender(object):
 
-    def __init__(self, user, password, smtp_server, smtp_port=25):
+    def __init__(self, user, password, smtp_server, smtp_port=25, ssl=True):
         # email of sender
         self.user = user
         self.password = password
         # SMTP server of sender
         self.smtp_server = smtp_server
         self.smtp_port = smtp_port
+        self.ssl = ssl
 
     def send_email(self, receiver, title, content_head, content):
         message = MIMEMultipart('alternative')
@@ -67,8 +68,11 @@ class Sender(object):
         message.attach(MIMEText(content_head + content, 'html', 'utf-8'))
         # message.attach(MIMEText(content, 'html', 'utf-8'))
 
-        # smtp = smtplib.SMTP()
-        smtp = smtplib.SMTP_SSL(self.smtp_server)
+        if self.ssl:
+            smtp = smtplib.SMTP_SSL(self.smtp_server)
+        else:
+            smtp = smtplib.SMTP()
+
         smtp.connect(self.smtp_server, self.smtp_port)  # default port 25 for smtp (unsafe)
 
         # smtp.ehlo(smtpserver)
