@@ -30,7 +30,6 @@ import requests
 from bs4 import BeautifulSoup
 
 import smtplib
-from smtplib import SMTP
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
@@ -49,8 +48,6 @@ def echo_time(int_time=None):
 '''
   * sender
 '''
-
-
 class Sender(object):
 
     def __init__(self, user, password, smtp_server, smtp_port=25):
@@ -63,15 +60,15 @@ class Sender(object):
 
     def send_email(self, receiver, title, content_head, content):
         message = MIMEMultipart('alternative')
-        message['From'] = Header(self.user, 'utf-8')
-        message['To'] = Header(receiver, 'utf-8')
+        message['From'] = self.user  # Header(self.user, 'utf-8')
+        message['To'] = receiver  # Header(receiver, 'utf-8')
         message['Subject'] = Header(title, 'utf-8')
 
         message.attach(MIMEText(content_head + content, 'html', 'utf-8'))
         # message.attach(MIMEText(content, 'html', 'utf-8'))
 
-        smtp = smtplib.SMTP()
-        # smtp = smtplib.SMTP_SSL()
+        # smtp = smtplib.SMTP()
+        smtp = smtplib.SMTP_SSL(self.smtp_server)
         smtp.connect(self.smtp_server, self.smtp_port)  # default port 25 for smtp (unsafe)
 
         # smtp.ehlo(smtpserver)
@@ -83,8 +80,6 @@ class Sender(object):
 '''
   * Inspect papers daily
 '''
-
-
 class PaperSpider(object):
 
     def __init__(self, config):

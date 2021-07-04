@@ -25,3 +25,49 @@ if __name__ == "__main__":
 
     with open(r'config.json', 'r') as f:
         data = json.load(f)
+
+
+
+    import smtplib
+    from smtplib import SMTP
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    from email.header import Header
+
+
+    smtp_server = r'smtp.163.com'
+    smtp_port = 587 # 465 587
+    user = 'paperspider@163.com'
+    password = 'JWMHYJVVWDBUZIOW'
+    receiver = 'caojin.phy@gmail.com'
+
+    subject = 'Python SMTP test'
+    content_head = 'test1'
+    content = r"""
+This month,
+
+<p>
+While, it is straightforward to show in what limit classical mechanics follows
+from quantum-mechanics, the path to show how quantum-mechanics may follow from
+using probability distributions on classical trajectories is non-trivial. Daniel
+Arovas explains the latest works showing progress in this problem.
+</p>
+Sincerely,
+
+Organizers,
+Journal Club for Condensed Matter Physics
+"""
+
+    message = MIMEMultipart('alternative')
+    message['From'] = user
+    message['To'] = receiver
+    message['Subject'] = Header(subject, 'utf-8')
+    message.attach(MIMEText(content_head + content, 'html', 'utf-8'))
+
+    # smtp = smtplib.SMTP()
+    smtp = smtplib.SMTP_SSL(smtp_server)
+    smtp.connect(smtp_server, smtp_port)  # default port 25 for smtp (unsafe)
+
+    smtp.login(user, password)
+    smtp.sendmail(user, receiver, message.as_string())
+    smtp.quit()
