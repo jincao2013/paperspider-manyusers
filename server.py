@@ -50,13 +50,13 @@ def schedule(config):
     }
     scheduler = BackgroundScheduler(executors=executors, job_default=job_defaults, timezone=utc)
 
-    utc_hour = (6 - 8) % 24  # beijing_hour: 6
-    scheduler.add_job(arxiv.main, id='arxiv', name='arxiv.main', trigger='cron', day='*', hour=utc_hour, minute=0)
+    utc_hour = (9 - 8) % 24  # beijing_hour: 6
+    scheduler.add_job(arxiv.main, id='arxiv', name='arxiv.main', trigger='cron', day='*', hour=utc_hour, minute=10)
 
     utc_hour = (7 - 8) % 24  # beijing_hour: 7
-    scheduler.add_job(prl.main, id='prl', name='prl.main', trigger='cron', day_of_week='mon,fri', hour=utc_hour, minute=0)
-    scheduler.add_job(prx.main, id='prx', name='prx.main', trigger='cron', month='*', day='20', hour=utc_hour, minute=15)
-    scheduler.add_job(prb.main, id='prb', name='prb.main', trigger='cron', day_of_week='sun', hour=utc_hour, minute=30)
+    scheduler.add_job(prl.main, id='prl', name='prl.main', trigger='cron', day_of_week='mon,thu', hour=utc_hour, minute=0)
+    scheduler.add_job(prx.main, id='prx', name='prx.main', trigger='cron', month='*', day='5', hour=utc_hour, minute=15)
+    scheduler.add_job(prb.main, id='prb', name='prb.main', trigger='cron', day_of_week='mon', hour=utc_hour, minute=30)
     scheduler.add_job(prresearch.main, id='prresearch', name='prresearch.main', trigger='cron', month='*', day='25', hour=utc_hour, minute=45)
 
     # scheduler.add_job(arxiv.main, id='arxiv_test')
