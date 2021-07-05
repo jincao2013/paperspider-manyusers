@@ -27,3 +27,6 @@ if __name__ == '__main__':
     arxiv = Arxiv(config)
 
     arxiv.main(sendemail=False)
+
+    print('spider have got the following papers:')
+    print(arxiv.papers)

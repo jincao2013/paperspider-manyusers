@@ -35,10 +35,10 @@
     }
   ],
   "database": {
-    "path": "/opt/paperspider-db/sciDB.sqlite"
+    "path": "./sciDB.test.sqlite"
   },
   "log": {
-    "path": "/opt/paperspider/paperspider.log",
+    "path": "./paperspider.test.log",
     "loglevel": "DEBUG"
   }
 }
