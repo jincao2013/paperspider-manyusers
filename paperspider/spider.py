@@ -198,6 +198,7 @@ class PaperSpider(object):
                 self.logger.info('email {} new articals to {}'.format(self.email_count[i], self.user_names[i]))
                 # self.send_email(self.user_emails[i], contents[i])
                 self.sender.send_email(self.user_emails[i], title, content_head, contents[i])
+                time.sleep(random.random() * 60 * 1)
             else:
                 self.logger.info('email no articals to {}'.format(self.user_names[i]))
 
