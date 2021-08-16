@@ -1,8 +1,8 @@
 {
   "sender": {
-    "email": "paperspider@foxmail.com",
-    "password": "btdzbzkwtgoibebg",
-    "smtp_server": "smtp.qq.com",
+    "email": "paperspider@sina.com",
+    "password": "aa2d0023cb9acb6d",
+    "smtp_server": "smtp.sina.com",
     "smtp_port": "587",
     "ssl": false
   },
