@@ -230,7 +230,8 @@ class Arxiv(PaperSpider):
         PaperSpider.__init__(self, config)
         self.journal_name = 'Arxiv:cond-mat'
         # self.journal_url = 'https://arxiv.org/list/cond-mat.mes-hall/new?show=10'
-        self.journal_url = 'https://arxiv.org/list/cond-mat.mes-hall/new'
+        # self.journal_url = 'https://arxiv.org/list/cond-mat.mes-hall/new'
+        self.journal_url = 'https://arxiv.org/list/cond-mat/new'
         self.time_update = 24 # hours
 
     def get_items(self):

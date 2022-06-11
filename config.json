@@ -10,7 +10,7 @@
     {
       "name": "jincao",
       "email": "caojin.phy@gmail.com",
-      "tags": ["APS:selected", "Tag:topo", "Tag:twist", "Tag:response"]
+      "tags": ["APS:selected", "Tag:topo", "Tag:twist", "Tag:response", "Tag:magnetism"]
     }
   ],
   "tags": [
@@ -32,6 +32,10 @@
         "green function", "linear response", "nonlinear response", "nonlinear optical",
         "Circular Photogalvanic", "CPGE", "shift current"
       ]
+    },
+    {
+      "name": "Tag:magnetism",
+      "dict": ["ferromagnet", "antiferromagnet", "FM", "AFM"]
     }
   ],
   "database": {
