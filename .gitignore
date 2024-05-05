@@ -34,6 +34,7 @@ MANIFEST.in
 
 
 # custom
+test/
 dev/
 db_backup/
 

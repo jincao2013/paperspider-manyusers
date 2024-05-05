@@ -36,12 +36,8 @@ if __name__ == "__main__":
     smtp_server = r'smtp.qq.com'
     smtp_port = 587 # 465 587
     user = 'paperspider@foxmail.com'
-    password = 'btdzbzkwtgoibebg'
-
-
-
+    password = ''
     receiver = 'caojin.phy@gmail.com'
-
     subject = 'Python SMTP test'
     content_head = 'test2'
     content = r"""
