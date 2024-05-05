@@ -1,15 +1,15 @@
 {
   "sender": {
-    "email": "paperspider@sina.com",
-    "password": "aa2d0023cb9acb6d",
-    "smtp_server": "smtp.sina.com",
-    "smtp_port": "587",
+    "email": "",
+    "password": "",
+    "smtp_server": "",
+    "smtp_port": "",
     "ssl": false
   },
   "receiver": [
     {
-      "name": "jincao",
-      "email": "caojin.phy@gmail.com",
+      "name": "",
+      "email": "",
       "tags": ["APS:selected", "Nature:selected", "Tag:mes-hall", "Tag:mtrl-sci"]
     }
   ],
