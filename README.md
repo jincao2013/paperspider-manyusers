@@ -11,7 +11,7 @@
 
 For new installations:
 
-1. Initialize the database using SQLite3: `/opt/paperspider/paperspider-db/sciDB.sqlite < init_sciDB.sql`
+1. Initialize the database using SQLite3: `/opt/paperspider-db/sciDB.sqlite < init_sciDB.sql`
 2. Configure `config.json`
 3. Run `sudo bash install.sh`
 
