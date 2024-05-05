@@ -18,35 +18,24 @@
 
 __date__ = "Feb. 7, 2020"
 
-import os
-import sys
+# import os
+# import sys
 import time
 import random
-import sqlite3
-import logging
+# import sqlite3
+# import logging
 import re
-
 import requests
 from bs4 import BeautifulSoup
-
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
-
 from paperspider.dbAPI import Paper
-
-
-def echo_time(int_time=None):
-    if int_time == None:
-        _int_time = time.time()
-    else:
-        _int_time = int_time
-    return time.strftime("%b.%d,%Y; %a; %H:%M:%S", time.localtime(_int_time))
-
+from paperspider.dbAPI import keyword_matching
 
 '''
-  * sender
+  * Sender
 '''
 class Sender(object):
 
@@ -80,9 +69,8 @@ class Sender(object):
         smtp.sendmail(self.user, receiver, message.as_string())
         smtp.quit()
 
-
 '''
-  * Inspect papers daily
+  * PaperSpider objects
 '''
 class PaperSpider(object):
 
@@ -121,14 +109,15 @@ class PaperSpider(object):
         return None
 
     def get_items(self):
-        '''
+        """
           * tabletitle = ['head_StrID', ...]
             items = [item1, ...]
-        ''' #
+        """  #
         tabletitle, items = [], []
         raise NotImplementedError
 
     def main(self, sendemail=True):
+        # empty data for every cron job
         self.num_items = 0
         self.papers = []  # []
         self.papers_html = []
@@ -138,10 +127,11 @@ class PaperSpider(object):
         tabletitle, items = self.get_items()
         for i, item in enumerate(items):
             head_StrID = item[0]
-            # check duplication
+            ''' drop this item if it exists in the database '''
             if len(self.c.execute("select id from papers where head_StrID='{}'".format(head_StrID)).fetchall()) != 0:
                 continue
-            # if not found in DB:
+
+            ''' proceed if not in database '''
             self.papers.append(Paper(self.conn, head_StrID))
             self.papers[self.num_items].db_creat()
             for name, value in zip(tabletitle, item):
@@ -150,11 +140,14 @@ class PaperSpider(object):
 
         # print(items)
         # print(self.num_items)
+
+        ''' report today's update in log '''
         if self.num_items == 0:
             self.logger.info('No update today.')
             return
         self.logger.info('{} new papers'.format(self.num_items))
 
+        ''' assign tags to each papers and compute preference for each users of each papers (preferece matrix) '''
         [i.pair_tags() for i in self.papers]
         self.preference_matrix = [i.compute_all_users_preferences(self.user_names) for i in self.papers]  # [num_items * num_users]
 
@@ -202,28 +195,9 @@ class PaperSpider(object):
             else:
                 self.logger.info('email no articals to {}'.format(self.user_names[i]))
 
-
-class Aps(object):
-
-    def __init__(self):
-        self.journal_url = 'https://journals.aps.org'
-        self.journal_name = 'Phys. Rev.'
-        self.journal_note = ''
-        self.aps_subjects_label_concerned = {
-            'Condensed Matter Physics',
-            'Strongly Correlated Materials',
-            'Materials Science',
-            'Computational Physics',
-            'Superconductivity',
-            'Topological Insulators',
-            'Magnetism',
-            'Graphene',
-        }
-        self.xhr_headers = {
-            'x-requested-with': 'XMLHttpRequest',
-        }
-
-
+'''
+  * arXiv spider
+'''
 class Arxiv(PaperSpider):
 
     def __init__(self, config):
@@ -232,7 +206,7 @@ class Arxiv(PaperSpider):
         # self.journal_url = 'https://arxiv.org/list/cond-mat.mes-hall/new?show=10'
         # self.journal_url = 'https://arxiv.org/list/cond-mat.mes-hall/new'
         self.journal_url = 'https://arxiv.org/list/cond-mat/new'
-        self.time_update = 24 # hours
+        # self.time_update = 24 # hours
 
     def get_items(self):
         # debug
@@ -272,6 +246,28 @@ class Arxiv(PaperSpider):
 
         return tabletitle, items
 
+'''
+  * APS Spider 
+'''
+class Aps(object):
+
+    def __init__(self):
+        self.journal_url = 'https://journals.aps.org'
+        self.journal_name = 'Phys. Rev.'
+        self.journal_note = ''
+        self.aps_subjects_label_concerned = {
+            'Condensed Matter Physics',
+            'Strongly Correlated Materials',
+            'Materials Science',
+            'Computational Physics',
+            'Superconductivity',
+            'Topological Insulators',
+            'Magnetism',
+            'Graphene',
+        }
+        self.xhr_headers = {
+            'x-requested-with': 'XMLHttpRequest',
+        }
 
 class ApsPRL(PaperSpider, Aps):
 
@@ -335,20 +331,12 @@ class ApsPRL(PaperSpider, Aps):
                 else:
                     list_abstract.append('ERROR in get abstract: <Response [{}]>'.format(_r.status_code))
 
-        # with requests.Session() as session:
-        #     list_r_abstract = [
-        #         session.get(''.join([journal_url, '/_api/v1/articles/', _data_id, '/abstract']), headers=xhr_headers)
-        #         for _data_id in list_data_id
-        #     ]
-        #     list_abstract = [i.text[3:-4] for i in list_r_abstract]
-
         _zip = zip(list_head_StrID, list_url, list_title, list_authors, list_note, list_abstract,
                    list_version, list_journal, list_volume, list_issue, list_public_date)
         for i, item in enumerate(_zip):
             items.append(item)
 
         return tabletitle, items
-
 
 class ApsPRX(PaperSpider, Aps):
 
@@ -421,7 +409,6 @@ class ApsPRX(PaperSpider, Aps):
 
         return tabletitle, items
 
-
 class ApsPRB(PaperSpider, Aps):
 
     def __init__(self, config):
@@ -491,7 +478,6 @@ class ApsPRB(PaperSpider, Aps):
             items.append(item)
 
         return tabletitle, items
-
 
 class ApsPRResearch(PaperSpider, Aps):
 
@@ -563,6 +549,108 @@ class ApsPRResearch(PaperSpider, Aps):
 
         return tabletitle, items
 
+'''
+  * Nature spider
+    - look up physical-sciences of nature and its subjournals, see https://www.nature.com/nature/browse-subjects
+'''
+class Nature(PaperSpider):
+    def __init__(self, config):
+        PaperSpider.__init__(self, config)
+        self.journal_name = 'Nature'
+        self.journal_url = r'https://www.nature.com/subjects/physical-sciences/nature'
+        self.journal_note = 'All_Nat' # add to tag to receive all papers from Nature
+    def get_items(self):
+        return get_items_nature(self.journal_name, self.journal_url, self.journal_note)
+
+class Nature_Physics(PaperSpider):
+    def __init__(self, config):
+        PaperSpider.__init__(self, config)
+        self.journal_name = 'Nature Physics'
+        self.journal_url = r'https://www.nature.com/subjects/physical-sciences/nphys'
+        self.journal_note = 'All_Nat_Phys' # add to tag to receive all papers from Nat. Phys.
+    def get_items(self):
+        return get_items_nature(self.journal_name, self.journal_url, self.journal_note)
+
+class Nature_Materials(PaperSpider):
+    def __init__(self, config):
+        PaperSpider.__init__(self, config)
+        self.journal_name = 'Nature Materials'
+        self.journal_url = r'https://www.nature.com/subjects/physical-sciences/nmat'
+        self.journal_note = 'All_Nat_Mater' # add to tag to receive all papers from Nat. Mater.
+    def get_items(self):
+        return get_items_nature(self.journal_name, self.journal_url, self.journal_note)
+
+class Nature_Nanotechnology(PaperSpider):
+    def __init__(self, config):
+        PaperSpider.__init__(self, config)
+        self.journal_name = 'Nature Nanotechnology'
+        self.journal_url = r'https://www.nature.com/subjects/physical-sciences/nnano'
+        self.journal_note = 'All_Nat_Nanotechnol' # add to tag to receive all papers from Nat. Nanotechnol.
+    def get_items(self):
+        return get_items_nature(self.journal_name, self.journal_url, self.journal_note)
+
+class Nature_Communications(PaperSpider):
+    def __init__(self, config):
+        PaperSpider.__init__(self, config)
+        self.journal_name = 'Nature Communications'
+        self.journal_url = r'https://www.nature.com/subjects/physical-sciences/ncomms'
+        self.journal_note = 'All_Nat_Comm' # add to tag to receive all papers from Nat. Comm.
+    def get_items(self):
+        return get_items_nature(self.journal_name, self.journal_url, self.journal_note)
+
+def get_items_nature(journal_name, journal_url, journal_note):
+    blacklist = [
+        'dark energy', 'universe', 'planet', 'moon', 'galaxy', 'mars', 'thermonuclear', 'big bang', 'stars',
+        'cataly', 'reactant',
+        'health', 'cancer'
+    ]
+
+    items = []
+    tabletitle = ['head_StrID', 'url', 'title', 'authors', 'note', 'abstract', 'version', 'journal', 'public_date']
+
+    response = requests.get(journal_url)
+    soup = BeautifulSoup(response.text, features='html.parser')
+    content = soup.find('div', id='content').find('section', class_="u-container").find_all('article')
+
+    for i in content:
+        head_StrID = i.find('a').get('href')[1:]
+        _title = i.find('a').text.strip()
+        try:
+            _abstract = i.find('div', itemprop="description").find('p').text
+        except AttributeError:
+            _abstract = ''
+        try:
+            _authors = i.find_all('span', itemprop="name")[0].text
+        except IndexError:
+            _authors = ''
+
+        ''' ignore if in blacklist '''
+        relevancy = keyword_matching(blacklist, _abstract + ' ' + _title)
+        if relevancy > 0.5: continue
+
+        items.append([
+            head_StrID,  # head_StrID
+            "https://www.nature.com/" + head_StrID,  # url
+            _title,  # title
+            _authors,  # authors
+            journal_note,  # note
+            _abstract,  # abstract
+            'published',
+            journal_name,
+            i.find('time', itemprop="datePublished").text,  # public_date
+        ])
+
+    return tabletitle, items
+
+'''
+  * etc.
+'''
+def echo_time(int_time=None):
+    if int_time is None:
+        _int_time = time.time()
+    else:
+        _int_time = int_time
+    return time.strftime("%b.%d,%Y; %a; %H:%M:%S", time.localtime(_int_time))
 
 class TempSpider(PaperSpider):
 
@@ -571,23 +659,12 @@ class TempSpider(PaperSpider):
         self.journal_url = 'https://journals.aps.org'
 
     def get_items(self):
-        '''
+        """
           * tabletitle = ['head_StrID', ...]
             items = [item1, ...]
-        ''' #
+        """  #
         tabletitle, items = [], []
         raise NotImplementedError
-
-
-# class A(object):
-#
-#     def __init__(self):
-#         self.x = 10
-#
-#     def __getattr__(self, item):
-#         return item
-#
-# a = A()
 
 if __name__ == "__main__":
     pass

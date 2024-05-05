@@ -3,14 +3,12 @@ include LICENSE
 include .gitignore
 
 include server.py
-include pyserver.py
 include config.json
 include install.sh
 include uninstall.sh
 
 recursive-include paperspider *
 recursive-include paperspider-db *
-recursive-include test *
 recursive-include service.d *
 
 global-exclude *.pyc
@@ -19,4 +17,5 @@ global-exclude .idea
 global-exclude __pycache__
 
 prune db_backup
+prune test
 prune dev

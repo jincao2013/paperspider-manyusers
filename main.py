@@ -1,4 +1,4 @@
-# import os
+import os
 import sys
 import time
 
@@ -8,13 +8,14 @@ from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
 
 from paperspider.config import Config
 from paperspider.spider import Arxiv, ApsPRL, ApsPRX, ApsPRB, ApsPRResearch
+from paperspider.spider import Nature, Nature_Physics, Nature_Materials, Nature_Communications, Nature_Nanotechnology
 
 # from .server import schedule
 
 
 if __name__ == '__main__':
-
-    config_path = './test/config.test.json'
+    os.chdir('/Users/jincao/Downloads/temp')
+    config_path = '/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test/config.test.json'
     config = Config(config_path)
 
     arxiv = Arxiv(config)
@@ -23,5 +24,27 @@ if __name__ == '__main__':
     prb = ApsPRB(config)
     prresearch = ApsPRResearch(config)
 
+    nature = Nature(config)
+    nat_phys = Nature_Physics(config)
+    nat_matr = Nature_Materials(config)
+    nat_nano = Nature_Nanotechnology(config)
+    nat_comm = Nature_Communications(config)
+
     # arxiv.main(sendemail=False)
+    nature.main(sendemail=False)
+    nat_phys.main(sendemail=False)
+    nat_matr.main(sendemail=False)
+    nat_nano.main(sendemail=False)
+    nat_comm.main(sendemail=False)
+
+    # tabletitle, items = arxiv.get_items()
+    # tabletitle, items = prl.get_items()
+    # tabletitle, items = nat_phys.get_items()
+    # tabletitle, items = nat_phys.get_items()
+    # tabletitle, items = nat_phys.get_items()
+    # tabletitle, items = nat_phys.get_items()
+    # tabletitle, items = nat_phys.get_items()
+
+    with open('nat.html', 'w') as f:
+        f.write(' '.join(nature.papers_html))
 

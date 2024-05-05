@@ -21,14 +21,12 @@ __date__ = "Feb. 7, 2020"
 # import os
 import sys
 import time
-
 from pytz import utc
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
-
 from paperspider.config import Config
 from paperspider.spider import Arxiv, ApsPRL, ApsPRX, ApsPRB, ApsPRResearch
-
+from paperspider.spider import Nature, Nature_Physics, Nature_Materials, Nature_Communications, Nature_Nanotechnology
 
 def schedule(config):
     """ start schedule """
@@ -39,6 +37,11 @@ def schedule(config):
     prx = ApsPRX(config)
     prb = ApsPRB(config)
     prresearch = ApsPRResearch(config)
+    nature = Nature(config)
+    nat_phys = Nature_Physics(config)
+    nat_matr = Nature_Materials(config)
+    nat_nano = Nature_Nanotechnology(config)
+    nat_comm = Nature_Communications(config)
 
     ''' init scheduler '''
     executors = {
@@ -52,14 +55,21 @@ def schedule(config):
     scheduler = BackgroundScheduler(executors=executors, job_default=job_defaults, timezone=utc)
 
     ''' assign spider jobs to schedule '''
-    utc_hour = (9 - 8) % 24  # beijing_hour: 09:xx am
-    scheduler.add_job(arxiv.main, id='arxiv', name='arxiv.main', trigger='cron', day='*', hour=utc_hour, minute=10)
+    utc_hour = (6 - 8) % 24  # beijing_hour: 06:xx am
+    scheduler.add_job(nature.main, id='nature', name='nature.main', trigger='cron', day_of_week='mon', hour=utc_hour, minute=0)
+    scheduler.add_job(nat_phys.main, id='nat_phys', name='nat_phys.main', trigger='cron', day_of_week='tue', hour=utc_hour, minute=0)
+    scheduler.add_job(nat_matr.main, id='nat_matr', name='nat_matr.main', trigger='cron', day_of_week='tue', hour=utc_hour, minute=15)
+    scheduler.add_job(nat_nano.main, id='nat_nano', name='nat_nano.main', trigger='cron', day_of_week='tue', hour=utc_hour, minute=30)
+    scheduler.add_job(nat_comm.main, id='nat_comm', name='nat_comm.main', trigger='cron', day_of_week='wed', hour=utc_hour, minute=0)
 
     utc_hour = (7 - 8) % 24  # beijing_hour: 07:xx am
     scheduler.add_job(prl.main, id='prl', name='prl.main', trigger='cron', day_of_week='mon,thu', hour=utc_hour, minute=0)
     scheduler.add_job(prx.main, id='prx', name='prx.main', trigger='cron', month='*', day='5', hour=utc_hour, minute=15)
     scheduler.add_job(prb.main, id='prb', name='prb.main', trigger='cron', day_of_week='mon', hour=utc_hour, minute=30)
     scheduler.add_job(prresearch.main, id='prresearch', name='prresearch.main', trigger='cron', month='*', day='25', hour=utc_hour, minute=45)
+
+    utc_hour = (9 - 8) % 24  # beijing_hour: 09:xx am
+    scheduler.add_job(arxiv.main, id='arxiv', name='arxiv.main', trigger='cron', day='*', hour=utc_hour, minute=10)
 
     # scheduler.add_job(arxiv.main, id='arxiv_test')
 

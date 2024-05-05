@@ -1,34 +1,25 @@
-# Paperspider-manyusers 
+# Paperspider-ManyUsers 
 
-`paperspider-manyusers` is a python based spider program designed for researchers especially for physicist. With the buildin schedulers, articles informations (from APS, Arxiv and etc.) are collected, label with `user_preference` and email to users. 
+`paperspider-manyusers`  is designed for researchers in physical sciences. Equipped with built-in TAG system and schedulers, this program gathers article information timely and efficiently from reputable sources such as APS, Nature (and its sub-journals), and arXiv. The collected data is then categorized with predefined tags and distributed to users via email. 
 
 ## Highlight
 
-- We have designed a TAG system with a list of keywords to describe it 
-- Support many-users mode
-- Runing as system daemon process
+- Tag system to follow update of papers from Physical Review, Nature, and arXiv
+- Multi-user support
 
 ## Usage
 
-To get start:
-1. copy `paperspider-db` to `/opt`
-2. set path of database in config.json
-3. set path of log in config.json
-4. set user preferences in config.json
-5. python3 server.py <path_of_config.json> 
+For new installations:
 
-This will link to a existed database or creating a new one.
+1. Initialize the database using SQLite3: `/opt/paperspider/paperspider-db/sciDB.sqlite < init_sciDB.sql`
+2. Configure `config.json`
+3. Run `sudo bash install.sh`
 
-To run as a system daemon, copy the `./service.d/papaerspider.service` to `/etc/systemd/system`, 
-and enable it. 
-
-## Dependency
+## Dependencies
 
 - sqlite3
 - requests
 - bs4
 - smtplib (smtp)
-- python-daemon 
 - apscheduler (scheduler)
 - pytz
-- ~~python-Levenshtein* (natural language processing)~~

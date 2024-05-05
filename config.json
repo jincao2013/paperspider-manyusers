@@ -10,7 +10,7 @@
     {
       "name": "jincao",
       "email": "caojin.phy@gmail.com",
-      "tags": ["APS:selected", "Tag:mes-hall", "Tag:mtrl-sci"]
+      "tags": ["APS:selected", "Nature:selected", "Tag:mes-hall", "Tag:mtrl-sci"]
     }
   ],
   "tags": [
@@ -19,20 +19,25 @@
       "dict": ["PRL:Cond-mat", "PRX:selected"]
     },
     {
+      "name": "Nature:selected",
+      "dict": ["All_Nat"]
+    },
+    {
       "name": "Tag:mes-hall",
       "dict": [
-        "spintronics", "valleytronics", "hall",
-        "linear response", "nonlinear response", "transport",
+        "spin", "electr", "hall", "spintronics", "valleytronics",
+        "response", "nonlinear response", "transport", "thermal", "phonon",
         "CPGE", "LPGE", "shift current",
-        "magnetoelectric effect"
+        "magnetoelectric effect",
+        "probe"
       ]
     },
     {
       "name": "Tag:mtrl-sci",
       "dict": [
-        "topological", "topology", "semimetal", "graphene",
-        "ferromagnet", "antiferromagnet", "FM", "AFM",
-        "first-principles", "DFT"
+        "material", "topolo", "semimetal", "graphene", "dimension", "van der waals",
+        "ferromagnet", "antiferromagnet", "magnet", "altermagnet",
+        "first-principles", "dft", "transition-metal", "dichalcogenide"
       ]
     }
   ],
