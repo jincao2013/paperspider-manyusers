@@ -19,3 +19,4 @@ global-exclude .idea
 global-exclude __pycache__
 
 prune db_backup
+prune dev

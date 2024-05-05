@@ -34,7 +34,7 @@ MANIFEST.in
 
 
 # custom
-dev doc.md
+dev/
 db_backup/
 
 *.log
