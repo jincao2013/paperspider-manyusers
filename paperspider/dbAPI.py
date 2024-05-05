@@ -18,11 +18,11 @@
 
 __date__ = "Feb. 7, 2020"
 
-import os
-import sys
+# import os
+# import sys
 import re
 import time
-import sqlite3
+# import sqlite3
 
 
 def dbtool_str2list(str_, sep=';'):
@@ -490,6 +490,7 @@ class Paper(SciDB):
 
 
 if __name__ == "__main__":
+    pass
     # conn = sqlite3.connect('sciDB.sqlite')
     # c = conn.cursor()
     #
@@ -504,8 +505,8 @@ if __name__ == "__main__":
     # conn.commit()
     # conn.close()
 
-    conn = sqlite3.connect('sciDB.sqlite')
-    c = conn.cursor()
+    # conn = sqlite3.connect('sciDB.sqlite')
+    # c = conn.cursor()
 
     # tags = [Tag(conn, 'topo'), Tag(conn, 'ml')]
     # [i.db_creat() for i in tags]

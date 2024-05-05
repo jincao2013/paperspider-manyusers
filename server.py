@@ -18,7 +18,7 @@
 
 __date__ = "Feb. 7, 2020"
 
-import os
+# import os
 import sys
 import time
 
@@ -31,15 +31,16 @@ from paperspider.spider import Arxiv, ApsPRL, ApsPRX, ApsPRB, ApsPRResearch
 
 
 def schedule(config):
+    """ start schedule """
+
+    ''' init spider for each journal '''
     arxiv = Arxiv(config)
     prl = ApsPRL(config)
     prx = ApsPRX(config)
     prb = ApsPRB(config)
     prresearch = ApsPRResearch(config)
 
-    '''
-      * scheduler
-    '''
+    ''' init scheduler '''
     executors = {
         'default': ThreadPoolExecutor(10),
         # 'processpool': ProcessPoolExecutor(5)
@@ -50,10 +51,11 @@ def schedule(config):
     }
     scheduler = BackgroundScheduler(executors=executors, job_default=job_defaults, timezone=utc)
 
-    utc_hour = (9 - 8) % 24  # beijing_hour: 6
+    ''' assign spider jobs to schedule '''
+    utc_hour = (9 - 8) % 24  # beijing_hour: 09:xx am
     scheduler.add_job(arxiv.main, id='arxiv', name='arxiv.main', trigger='cron', day='*', hour=utc_hour, minute=10)
 
-    utc_hour = (7 - 8) % 24  # beijing_hour: 7
+    utc_hour = (7 - 8) % 24  # beijing_hour: 07:xx am
     scheduler.add_job(prl.main, id='prl', name='prl.main', trigger='cron', day_of_week='mon,thu', hour=utc_hour, minute=0)
     scheduler.add_job(prx.main, id='prx', name='prx.main', trigger='cron', month='*', day='5', hour=utc_hour, minute=15)
     scheduler.add_job(prb.main, id='prb', name='prb.main', trigger='cron', day_of_week='mon', hour=utc_hour, minute=30)
@@ -61,6 +63,7 @@ def schedule(config):
 
     # scheduler.add_job(arxiv.main, id='arxiv_test')
 
+    ''' start to run jobs in schedule '''
     scheduler.start()
 
     try:

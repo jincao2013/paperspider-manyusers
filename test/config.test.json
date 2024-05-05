@@ -1,8 +1,8 @@
 {
   "sender": {
-    "email": "paperspider@foxmail.com",
-    "password": "btdzbzkwtgoibebg",
-    "smtp_server": "smtp.qq.com",
+    "email": "paperspider@sina.com",
+    "password": "aa2d0023cb9acb6d",
+    "smtp_server": "smtp.sina.com",
     "smtp_port": "587",
     "ssl": false
   },
@@ -10,7 +10,7 @@
     {
       "name": "jincao",
       "email": "caojin.phy@gmail.com",
-      "tags": ["APS:selected", "Tag:topo", "Tag:twist", "Tag:response"]
+      "tags": ["APS:selected", "Tag:mes-hall", "Tag:mtrl-sci"]
     }
   ],
   "tags": [
@@ -19,18 +19,20 @@
       "dict": ["PRL:Cond-mat", "PRX:selected"]
     },
     {
-      "name": "Tag:topo",
-      "dict": ["topological", "semimetal", "weyl"]
-    },
-    {
-      "name": "Tag:twist",
-      "dict": ["twisted graphene", "twist graphene", "magic angle"]
-    },
-    {
-      "name": "Tag:response",
+      "name": "Tag:mes-hall",
       "dict": [
-        "green function", "linear response", "nonlinear response", "nonlinear optical",
-        "Circular Photogalvanic", "CPGE", "shift current"
+        "spintronics", "valleytronics", "hall",
+        "linear response", "nonlinear response", "transport",
+        "CPGE", "LPGE", "shift current",
+        "magnetoelectric effect"
+      ]
+    },
+    {
+      "name": "Tag:mtrl-sci",
+      "dict": [
+        "topological", "topology", "semimetal", "graphene",
+        "ferromagnet", "antiferromagnet", "FM", "AFM",
+        "first-principles", "DFT"
       ]
     }
   ],
