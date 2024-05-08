@@ -21,6 +21,7 @@ __date__ = "Feb. 7, 2020"
 # import os
 # import sys
 import time
+from datetime import datetime
 import random
 # import sqlite3
 # import logging
@@ -217,33 +218,43 @@ class Arxiv(PaperSpider):
         content = soup.find('div', id='dlpage')
         # content = soup.dl
         # content = soup.find_all('dl')[1]
-        date = soup.find('div', class_='list-dateline').text
+        # date = soup.find('div', class_='list-dateline').text
+        current_date = datetime.now()
+        date = current_date.strftime("%A, %d %B %Y")
 
         list_ids = content.find_all('a', title='Abstract')
         list_title = content.find_all('div', class_='list-title mathjax')
         list_authors = content.find_all('div', class_='list-authors')
-        list_subjects = content.find_all('div', class_='list-subjects')
-        list_subject_split = []
-        for subjects in list_subjects:
-            subjects = subjects.text.split(': ')[1]
-            subjects = subjects.replace('\n\n', '')
-            subjects = subjects.replace('\n', '')
-            subject_split = subjects.split('; ')
-            list_subject_split.append(subject_split)
-        list_note = [str(i) for i in list_subject_split]
+        # list_subjects = content.find_all('div', class_='list-subjects')
+        # list_subject_split = []
+        # for subjects in list_subjects:
+        #     subjects = subjects.text.split(': ')[1]
+        #     subjects = subjects.replace('\n\n', '')
+        #     subjects = subjects.replace('\n', '')
+        #     subject_split = subjects.split('; ')
+        #     list_subject_split.append(subject_split)
+        # list_note = [str(i) for i in list_subject_split]
 
         list_abstract = content.find_all('p', class_='mathjax')
         list_abstract = [i.text.replace('\n', ' ') for i in list_abstract]
 
-        items = []
-        for i, item in enumerate(zip(list_ids, list_title, list_authors, list_note, list_abstract)):
-            items.append([item[0].text, r'https://arxiv.org'+item[0].attrs['href'], item[1].text, item[2].text, item[3], item[4], 'preprint', 'arxiv', date])
         tabletitle = ['head_StrID', 'url', 'title', 'authors', 'note', 'abstract', 'version', 'journal', 'public_date']
-
-        # paper = pd.DataFrame(columns=name, data=items)
-        # # paper.to_csv('/home/zzh/Code/Spider/paperspider/arxiv/daily/'+time.strftime("%Y-%m-%d")+'_'+str(len(items))+'.csv')
-        # paper.to_csv('arxivtodate.csv')
-
+        items = []
+        num_papers = len(list_ids)
+        for i in range(num_papers):
+            items.append([
+                list_ids[i].text.strip(), # head_StrID
+                r'https://arxiv.org'+list_ids[i].attrs['href'], # url
+                list_title[i].text, # title
+                list_authors[i].text, # authors
+                '', # note
+                list_abstract[i], # abstract
+                'preprint', # version
+                'arxiv', # journal
+                date, # journal
+            ])
+        # for i, item in enumerate(zip(list_ids, list_title, list_authors, list_note, list_abstract)):
+        #     items.append([item[0].text, r'https://arxiv.org'+item[0].attrs['href'], item[1].text, item[2].text, item[3], item[4], 'preprint', 'arxiv', date])
         return tabletitle, items
 
 '''
