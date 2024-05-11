@@ -21,10 +21,11 @@ __date__ = "Feb. 7, 2020"
 # import os
 # import sys
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import random
 # import sqlite3
 # import logging
+import numpy as np
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -82,7 +83,7 @@ class PaperSpider(object):
         self.c = self.conn.cursor()
         self.sender = config.sender
 
-        self.journal_url = None
+        # self.journal_url = None
         self.journal_name = None
         # self.interval_update = 24 # hours
 
@@ -97,12 +98,13 @@ class PaperSpider(object):
         self.preference_matrix = []  # [num_users * num_items]
         self.email_count = []
 
-    def get_html(self):
-        response = requests.get(self.journal_url)
+    @staticmethod
+    def get_html(journal_url):
+        response = requests.get(journal_url)
         # print(response.status_code)
         while response.status_code == 403:
             time.sleep(500 + random.uniform(0, 500))
-            response = requests.get(self.journal_url)
+            response = requests.get(journal_url)
             # print(response.status_code)
         # print(response.status_code)
         if response.status_code == 200:
@@ -176,10 +178,19 @@ class PaperSpider(object):
         title = '[Paper Spider] New Articles'
         contents = ['' for i in range(self.num_users)]
         for i in range(self.num_users):
-            for j in range(self.num_items):
-                if self.preference_matrix[i][j] > 0.5:
-                    self.email_count[i] += 1
-                    contents[i] += self.papers_html[j]
+            ''' prepare email for each user '''
+
+            arr_pref = np.array(self.preference_matrix[0])
+            indices = np.where(arr_pref > 0.5)[0]
+            sorted_indices = sorted(indices, key=lambda x: arr_pref[x], reverse=True)
+            self.email_count[i] = len(sorted_indices)
+
+            for ipaper in sorted_indices:
+                contents[i] += self.papers_html[ipaper]
+            # for j in range(self.num_items):
+            #     if self.preference_matrix[i][j] > 0.5:
+            #         self.email_count[i] += 1
+            #         contents[i] += self.papers_html[j]
             contents[i] = """
             <div style="width: 70%">
                 <ol>
@@ -203,38 +214,31 @@ class Arxiv(PaperSpider):
 
     def __init__(self, config):
         PaperSpider.__init__(self, config)
-        self.journal_name = 'Arxiv:cond-mat'
-        # self.journal_url = 'https://arxiv.org/list/cond-mat.mes-hall/new?show=10'
-        # self.journal_url = 'https://arxiv.org/list/cond-mat.mes-hall/new'
-        self.journal_url = 'https://arxiv.org/list/cond-mat/new'
+        self.journal_name = 'arXiv cond-mat'
         # self.time_update = 24 # hours
 
     def get_items(self):
-        # debug
-        # html = open('./test/arxiv_tmp.html').read()
-        # soup = BeautifulSoup(html, features='html.parser')
+        tabletitle, items_mes_hall = self.get_items_mes_hall()
+        tabletitle, items_mtrl_sci = self.get_items_mtrl_sci()
 
-        soup = BeautifulSoup(self.get_html(), features='html.parser')
+        unique_items = {}
+        for item in items_mes_hall + items_mtrl_sci:
+            item_id = item[0]
+            unique_items[item_id] = item
+        items = list(unique_items.values())
+
+        return tabletitle, items
+
+    def get_items_mes_hall(self):
+        journal_url = 'https://arxiv.org/list/cond-mat.mes-hall/new'
+        soup = BeautifulSoup(self.get_html(journal_url), features='html.parser')
         content = soup.find('div', id='dlpage')
-        # content = soup.dl
-        # content = soup.find_all('dl')[1]
-        # date = soup.find('div', class_='list-dateline').text
-        current_date = datetime.now()
-        date = current_date.strftime("%A, %d %B %Y")
+        current_date_us = datetime.now() - timedelta(hours=12)
+        date = current_date_us.strftime("%A, %d %B %Y")
 
         list_ids = content.find_all('a', title='Abstract')
         list_title = content.find_all('div', class_='list-title mathjax')
         list_authors = content.find_all('div', class_='list-authors')
-        # list_subjects = content.find_all('div', class_='list-subjects')
-        # list_subject_split = []
-        # for subjects in list_subjects:
-        #     subjects = subjects.text.split(': ')[1]
-        #     subjects = subjects.replace('\n\n', '')
-        #     subjects = subjects.replace('\n', '')
-        #     subject_split = subjects.split('; ')
-        #     list_subject_split.append(subject_split)
-        # list_note = [str(i) for i in list_subject_split]
-
         list_abstract = content.find_all('p', class_='mathjax')
         list_abstract = [i.text.replace('\n', ' ') for i in list_abstract]
 
@@ -250,11 +254,39 @@ class Arxiv(PaperSpider):
                 '', # note
                 list_abstract[i], # abstract
                 'preprint', # version
-                'arxiv', # journal
+                'arXiv cond-mat.mes-hall', # journal
                 date, # journal
             ])
-        # for i, item in enumerate(zip(list_ids, list_title, list_authors, list_note, list_abstract)):
-        #     items.append([item[0].text, r'https://arxiv.org'+item[0].attrs['href'], item[1].text, item[2].text, item[3], item[4], 'preprint', 'arxiv', date])
+        return tabletitle, items
+
+    def get_items_mtrl_sci(self):
+        journal_url = 'https://arxiv.org/list/cond-mat.mtrl-sci/new'
+        soup = BeautifulSoup(self.get_html(journal_url), features='html.parser')
+        content = soup.find('div', id='dlpage')
+        current_date_us = datetime.now() - timedelta(hours=12)
+        date = current_date_us.strftime("%A, %d %B %Y")
+
+        list_ids = content.find_all('a', title='Abstract')
+        list_title = content.find_all('div', class_='list-title mathjax')
+        list_authors = content.find_all('div', class_='list-authors')
+        list_abstract = content.find_all('p', class_='mathjax')
+        list_abstract = [i.text.replace('\n', ' ') for i in list_abstract]
+
+        tabletitle = ['head_StrID', 'url', 'title', 'authors', 'note', 'abstract', 'version', 'journal', 'public_date']
+        items = []
+        num_papers = len(list_ids)
+        for i in range(num_papers):
+            items.append([
+                list_ids[i].text.strip(), # head_StrID
+                r'https://arxiv.org'+list_ids[i].attrs['href'], # url
+                list_title[i].text, # title
+                list_authors[i].text, # authors
+                '', # note
+                list_abstract[i], # abstract
+                'preprint', # version
+                'arXiv cond-mat.mtrl-sci', # journal
+                date, # journal
+            ])
         return tabletitle, items
 
 '''
