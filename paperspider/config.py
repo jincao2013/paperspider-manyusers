@@ -25,7 +25,7 @@ import sqlite3
 import logging
 from paperspider.dbAPI import User, Tag
 from paperspider.spider import Sender
-
+from collections import OrderedDict
 
 class Config(object):
 
@@ -53,6 +53,7 @@ class Config(object):
             ssl=self.config['sender']['ssl'],
         )
         self.tags = []
+        self.keywords = []
         self.users = []
         self.set_tags()
         self.set_users()
@@ -107,52 +108,17 @@ class Config(object):
         return logger
 
     def set_tags(self):
-        # '''
-        #   Build-in tags
-        # '''
-        # _tag = Tag(self.conn, 'APS:selected')
-        # _tag.db_creat()
-        # _tag.dict = ['PRL:Cond-mat', 'PRX:selected']
-        # self.tags.append(_tag)
-        #
-        # _tag = Tag(self.conn, 'Tag:topo')
-        # _tag.db_creat()
-        # _tag.dict = ['topological', 'weyl', 'semimetal']
-        # self.tags.append(_tag)
-        #
-        # _tag = Tag(self.conn, 'Tag:twist')
-        # _tag.db_creat()
-        # _tag.dict = ['twisted graphene', 'twist graphene', 'magic angle']
-        # self.tags.append(_tag)
-        #
-        # _tag = Tag(self.conn, 'Tag:response')
-        # _tag.db_creat()
-        # _tag.dict = ['green function', 'linear response',
-        #              'nonlinear response', 'nonlinear optical',
-        #              'Circular Photogalvanic', 'CPGE', 'shift current']
-        # self.tags.append(_tag)
-
         tags = self.config['tags']
+        keywords = []
         for i in tags:
             _tag = Tag(self.conn, i['name'])
             _tag.db_creat()
             _tag.dict = i['dict']
             self.tags.append(_tag)
+            keywords += i['dict']
+        self.keywords = list(OrderedDict.fromkeys(keywords))
 
     def set_users(self):
-        # _user = User(self.conn, 'jincao')
-        # _user.db_creat()
-        # _user.email = 'caojin.phy@gmail.com'
-        # _tags = ['APS:selected', 'Tag:topo', 'Tag:twist', 'Tag:response']
-        # _user.pair_tags(_tags, mode='update')
-        # self.users.append(_user)
-
-        # _user = User(self.conn, 'llp')
-        # _user.db_creat()
-        # _user.email = 'liuliping@bit.edu.cn'
-        # _user.pair_tags(['topo'], mode='update')
-        # self.users.append(_user)
-
         users = self.config['receiver']
         for i in users:
             _user = User(self.conn, i['name'])

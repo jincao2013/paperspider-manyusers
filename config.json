@@ -10,7 +10,7 @@
     {
       "name": "",
       "email": "",
-      "tags": ["APS:selected", "Nature:selected", "Tag:mes-hall", "Tag:mtrl-sci"]
+      "tags": ["APS:selected", "Nature:selected", "Tag:mes-hall", "Tag:mtrl-sci", "Tag:scholar"]
     }
   ],
   "tags": [
@@ -25,19 +25,26 @@
     {
       "name": "Tag:mes-hall",
       "dict": [
-        "spin", "electr", "hall", "spintronics", "valleytronics",
-        "response", "nonlinear response", "transport", "thermal", "phonon",
-        "CPGE", "LPGE", "shift current",
-        "magnetoelectric effect",
-        "probe"
+        "spin hall", "spin galvanic", "CISP", "spin-orbit torque", "spin-transfer torque",
+        "Nernst effect", "spintronics", "valleytronics", "layertronics", "optoelectronics",
+        "nonlinear hall", "quantum metric",
+        "nonlinear optical", "CPGE", "LPGE", "shift current", "BPVE",
+        "magnetoelectric", "axion"
       ]
     },
     {
       "name": "Tag:mtrl-sci",
       "dict": [
-        "material", "topolo", "semimetal", "graphene", "dimension", "van der waals",
-        "ferromagnet", "antiferromagnet", "magnet", "altermagnet",
-        "first-principles", "dft", "transition-metal", "dichalcogenide"
+        "topolo", "semimetal", "Dirac", "Weyl",
+        "graphene", "transition-metal", "dichalcogenide",
+        "van der waals", "two-dimensional",
+        "ferromagnet", "antiferromagnet", "altermagnet"
+      ]
+    },
+    {
+      "name": "Tag:scholar",
+      "dict": [
+        "A. A. Abrikosov"
       ]
     }
   ],

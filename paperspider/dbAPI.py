@@ -469,19 +469,32 @@ class Paper(SciDB):
     '''
       * echo
     '''
-    def get_html(self):
-        item = """
+    def get_html(self, keyword='', score=0):
+        item = f"""
         <li>
             <div>
                 <p style="font-family: 'Trebuchet MS'; text-align: justify">
-                    <a style="color:#303f9f;text-decoration: none" href="{}"><strong>{}</strong></a> <br/>
-                    <u style="color: #5d4037">{}</u> <br/>
-                    <em>{}</em>, <mark>{}</mark> <br/>
-                    {}
+                    <a style="color:#303f9f;text-decoration: none" href="{self.url}"><strong>{self.title}</strong></a> <br/>
+                    <u style="color: #5d4037">{self.authors}</u> <br/>
+                    <em>{self.journal}</em>, <mark>{self.public_date}</mark> <br/>
+                    {self.abstract} <br/>
+                    <span style="color: #000000; font-weight: bold">Rate: </span><span style="color: #1976d2; font-weight: bold">{int(score)}</span> <span style="color: #000000; font-weight: bold">keywords:</span> <span style="color: #1976d2; font-weight: bold">{keyword}</span>
                 </p>
             </div>
         </li>
-        """.format(self.url, self.title, self.authors, self.journal, self.public_date, self.abstract)
+        """
+        # item = """
+        # <li>
+        #     <div>
+        #         <p style="font-family: 'Trebuchet MS'; text-align: justify">
+        #             <a style="color:#303f9f;text-decoration: none" href="{}"><strong>{}</strong></a> <br/>
+        #             <u style="color: #5d4037">{}</u> <br/>
+        #             <em>{}</em>, <mark>{}</mark> <br/>
+        #             {}
+        #         </p>
+        #     </div>
+        # </li>
+        # """.format(self.url, self.title, self.authors, self.journal, self.public_date, self.abstract)
         return item
 
     def __repr__(self):
