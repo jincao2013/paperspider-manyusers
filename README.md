@@ -1,6 +1,6 @@
 # Paperspider-ManyUsers 
 
-`paperspider-manyusers`  is designed for researchers in physical sciences. Equipped with built-in TAG system and schedulers, this program gathers article information timely and efficiently from reputable sources such as APS, Nature (and its sub-journals), and arXiv. The collected data is then categorized with predefined tags and distributed to users via email. 
+`paperspider-manyusers`  is designed for researchers in physical sciences. Equipped with built-in TAG system and schedulers, this program gathers article information timely and efficiently from reputable sources such as Physical Review, Nature (and its sub-journals), and arXiv. The collected data is then categorized with predefined tags and distributed to users via email. 
 
 ## Highlight
 
