@@ -34,12 +34,13 @@ if __name__ == '__main__':
     # nat_nano = Nature_Nanotechnology(config)
     # nat_comm = Nature_Communications(config)
 
-    # arxiv.main(sendemail=False)
+    # arxiv.main(sendemail=True)
     # nature.main(sendemail=False)
     # nat_phys.main(sendemail=False)
     # nat_matr.main(sendemail=False)
     # nat_nano.main(sendemail=False)
     # nat_comm.main(sendemail=False)
+    # prl.main(sendemail=True)
 
     # tabletitle, items = arxiv.get_items()
     # tabletitle, items = prl.get_items()

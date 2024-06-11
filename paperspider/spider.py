@@ -133,6 +133,10 @@ class PaperSpider(object):
         self.preference_matrix = []  # [num_users * num_items]
         self.email_count = []
 
+        self.keyword_counts_matrix = None # [num_iterms, num_keywords]
+        self.keywords_of_papers = []
+        self.score_by_keywords = None # [num_iterms]
+
         tabletitle, items = self.get_items()
         for i, item in enumerate(items):
             head_StrID = item[0]
