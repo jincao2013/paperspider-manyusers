@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="app">
+    {{ email_info.update_date_weekday }} {{ email_info.subject }} ({{ email_info.num_papers }} papers)
+    {% for paper in papers %}
+    <div class="article">
+        <div>
+            <a class="article-title">{{ paper.title }}</a>
+        </div>
+        <div class="article-meta">
+            <span class="article-domain">{{ paper.journal }}</span> | {{ paper.authors }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

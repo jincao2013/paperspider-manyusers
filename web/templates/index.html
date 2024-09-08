@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="app">
+    {% for thismail in mailing_list %}
+    <div class="article">
+        <div>
+            <a class="article-title" href="{{ url_for('mail', mail_id=thismail.id) }}">
+                {{ thismail.update_date_yymmdd }} {{ thismail.update_date_weekday }} {{ thismail.subject }}
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

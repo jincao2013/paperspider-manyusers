@@ -1,0 +1,73 @@
+body {
+    font-family: Verdana, Geneva, sans-serif;
+    background-color: #f6f6ef;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #ff6600;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    color: white;
+    text-align: center;
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.app {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.article {
+    margin-bottom: 0.3rem;
+    padding: 0.1rem;
+    /*background-color: #fff;*/
+}
+.article-title {
+    color: #000;
+    text-decoration: none;
+    font-size: 0.8rem;
+}
+.article-domain {
+    font-size: 0.8rem;
+    color: #828282;
+}
+.article-meta {
+    font-size: 0.8rem;
+    color: #828282;
+}
+.article-meta a {
+    color: #828282;
+    text-decoration: none;
+}
+.article-meta a:hover {
+    text-decoration: underline;
+}
+
+/*.papers-list {*/
+/*    list-style: none;*/
+/*    padding: 0;*/
+/*}*/
+
+/*.papers-list li {*/
+/*    padding: 10px;*/
+/*    border-bottom: 1px solid #ddd;*/
+/*}*/
+
+/*.papers-list .title, .papers-list .journal, .papers-list .authors {*/
+/*    display: block;*/
+/*    font-size: 1.1em;*/
+/*    color: #333;*/
+/*    margin-bottom: 5px;*/
+/*}*/
+
+/*.papers-list .title strong, .papers-list .journal strong, .papers-list .authors strong {*/
+/*    font-weight: bold;*/
+/*}*/

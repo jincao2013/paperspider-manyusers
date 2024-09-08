@@ -33,7 +33,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
-from paperspider.dbAPI import Paper
+from paperspider.dbAPI import Paper, Mailing_list
 from paperspider.dbAPI import keyword_matching
 
 '''
@@ -102,7 +102,7 @@ class PaperSpider(object):
         self.num_keywords = len(self.keywords)
         self.keyword_counts_matrix = None # [num_iterms, num_keywords]
         self.keywords_of_papers = []
-        self.score_by_keywords = None # [num_iterms]
+        self.score_by_keywords = [] # [num_iterms]
 
     @staticmethod
     def get_html(journal_url):
@@ -119,9 +119,9 @@ class PaperSpider(object):
 
     def get_items(self):
         """
-          * tabletitle = ['head_StrID', ...]
-            items = [item1, ...]
-        """  #
+          tabletitle = ['head_StrID', 'url', 'title', 'authors', 'note', 'abstract', 'version', 'journal', 'public_date']
+          items = [head_StrID, url, ...]
+        """
         tabletitle, items = [], []
         raise NotImplementedError
 
@@ -135,21 +135,36 @@ class PaperSpider(object):
 
         self.keyword_counts_matrix = None # [num_iterms, num_keywords]
         self.keywords_of_papers = []
-        self.score_by_keywords = None # [num_iterms]
+        self.score_by_keywords = [] # [num_iterms]
 
+        # get papers from journal website
         tabletitle, items = self.get_items()
-        for i, item in enumerate(items):
+        for _, item in enumerate(items):
             head_StrID = item[0]
             ''' drop this item if it exists in the database '''
             if len(self.c.execute("select id from papers where head_StrID='{}'".format(head_StrID)).fetchall()) != 0:
                 continue
 
-            ''' proceed if not in database '''
-            self.papers.append(Paper(self.conn, head_StrID))
-            self.papers[self.num_items].db_creat()
+            ''' continue if not in database '''
+            self.papers.append(Paper(self.conn, head_StrID))    # creat an empty Paper instance with only head_StrID
+            _paper = self.papers[self.num_items]
+            _paper.db_creat()              # creat a database entry
             for name, value in zip(tabletitle, item):
-                self.papers[self.num_items].__setattr__(name, value)
+                _paper.__setattr__(name, value) # add details (in item) of this entry
             self.num_items += 1
+
+        ''' cal keywords and score_by_keywords of today's papers '''
+        self.keyword_counts_matrix = np.zeros([self.num_items, self.num_keywords])
+        self.score_by_keywords = np.zeros([self.num_items])
+        for ip in range(self.num_items):
+            _paper = self.papers[ip]
+            _content = _paper.authors + ' ' + _paper.title + ' ' + _paper.abstract + ' ' + _paper.note
+            self.keyword_counts_matrix[ip] = np.array([_content.lower().count(keyword.lower()) for keyword in self.keywords])
+            keywords_idx = np.where(self.keyword_counts_matrix[ip]>0.5)[0].tolist()
+            self.keywords_of_papers.append('; '.join([self.keywords[idx] for idx in keywords_idx]))
+            self.score_by_keywords[ip] = np.sum(self.keyword_counts_matrix[ip])
+            _paper.keywords = self.keywords_of_papers[ip]
+            _paper.score_by_keywords = self.score_by_keywords[ip]
 
         ''' report today's update in log '''
         if self.num_items == 0:
@@ -157,24 +172,24 @@ class PaperSpider(object):
             return
         self.logger.info('{} new papers'.format(self.num_items))
 
-        ''' cal keyword_counts_matrix '''
-        self.keyword_counts_matrix = np.zeros([self.num_items, self.num_keywords])
-        for ip in range(self.num_items):
-            _paper = self.papers[ip]
-            _content = _paper.authors + ' ' + _paper.title + ' ' + _paper.abstract + ' ' + _paper.note
-            self.keyword_counts_matrix[ip] = np.array([_content.lower().count(keyword.lower()) for keyword in self.keywords])
-            keywords_idx = np.where(self.keyword_counts_matrix[ip]>0.5)[0].tolist()
-            self.keywords_of_papers.append(', '.join([self.keywords[idx] for idx in keywords_idx]))
-        self.score_by_keywords = np.sum(self.keyword_counts_matrix, axis=1)
-
         ''' assign tags to each papers and compute preference for each users of each papers (preferece matrix) '''
-        [i.pair_tags() for i in self.papers]
+        [i.pair_tags() for i in self.papers] # assign tag for today's paper
         self.preference_matrix = np.array([i.compute_all_users_preferences(self.user_names) for i in self.papers]).T # [num_users * num_items]
         self.papers_html = [i.get_html() for i in self.papers]
         self.papers_html = [self.papers[i].get_html(self.keywords_of_papers[i], self.score_by_keywords[i]) for i in range(self.num_items)]
 
         if sendemail:
             self.send_emails()
+
+    def update_mailing_list(self):
+        sorted_idx = np.argsort(self.score_by_keywords)[::-1]
+        selected_idx = np.where(np.array(self.score_by_keywords) > 0.5)[0]
+        selected_sorted_idx = sorted_idx[np.isin(sorted_idx, selected_idx)]
+
+        list_paper_idx = [self.papers[i].id for i in selected_sorted_idx]
+        list_paper_stridx = [self.papers[i].head_StrID for i in selected_sorted_idx]
+        mailing_list = Mailing_list(self.conn)
+        mailing_list.db_creat(self.journal_name, list_paper_idx, list_paper_stridx)
 
     def send_emails(self):
         self.email_count = [0 for i in range(self.num_users)]
@@ -188,36 +203,36 @@ class PaperSpider(object):
 
         """.format(self.journal_name)
         title = '[Paper Spider] New Articles'
-        contents = ['' for i in range(self.num_users)]
-        for i in range(self.num_users):
-            ''' prepare email for each user, and sort the order by keyword_counts_matrix '''
-            sorted_idx = np.argsort(self.score_by_keywords)[::-1]
-            selected_idx = np.where(self.preference_matrix[0] > 0.5)[0]
-            selected_sorted_idx = sorted_idx[np.isin(sorted_idx, selected_idx)]
+        contents = ''
 
-            self.email_count[i] = len(selected_sorted_idx)
-            for ip in selected_sorted_idx:
-                contents[i] += self.papers_html[ip]
-            contents[i] = """
-            <div style="width: 70%">
-                <ol>
-            """ + contents[i] + """
-                </ol>
-            </div>
-            """
+        ''' prepare email for user, and sort the order by keyword_counts_matrix '''
+        sorted_idx = np.argsort(self.score_by_keywords)[::-1]
+        selected_idx = np.where(self.preference_matrix[0] > 0.5)[0]
+        selected_sorted_idx = sorted_idx[np.isin(sorted_idx, selected_idx)]
 
-            # with open('test_email.html', 'a') as f:
-            #     f.write(contents[i])
+        idx_user = 0
+        self.email_count[idx_user] = len(selected_sorted_idx)
+        for ip in selected_sorted_idx:
+            contents[idx_user] += self.papers_html[ip]
+        contents = """
+        <div style="width: 70%">
+            <ol>
+        """ + contents + """
+            </ol>
+        </div>
+        """
 
-        ''' send email to users '''
-        for i in range(self.num_users):
-            if self.email_count[i] > 0:
-                self.logger.info('email {} new articals to {}'.format(self.email_count[i], self.user_names[i]))
-                # self.send_email(self.user_emails[i], contents[i])
-                self.sender.send_email(self.user_emails[i], title, content_head, contents[i])
-                time.sleep(random.random() * 60 * 1)
-            else:
-                self.logger.info('email no articals to {}'.format(self.user_names[i]))
+        # with open('test_email.html', 'a') as f:
+        #     f.write(contents[i])
+
+        ''' send email to user '''
+        if self.email_count[idx_user] > 0:
+            self.logger.info('email {} new articals to {}'.format(self.email_count[idx_user], self.user_names[idx_user]))
+            # self.send_email(self.user_emails[i], contents[i])
+            self.sender.send_email(self.user_emails[idx_user], title, content_head, contents)
+            time.sleep(random.random() * 60 * 1)
+        else:
+            self.logger.info('email no articals to {}'.format(self.user_names[idx_user]))
 
 '''
   * arXiv spider
@@ -241,9 +256,14 @@ class Arxiv(PaperSpider):
 
         return tabletitle, items
 
-    def get_items_mes_hall(self):
-        journal_url = 'https://arxiv.org/list/cond-mat.mes-hall/new'
-        soup = BeautifulSoup(self.get_html(journal_url), features='html.parser')
+    @staticmethod
+    def get_items_mes_hall():
+        # debug
+        with open('./arXiv1.html', 'r') as f:
+            raw_html = f.read()
+        soup = BeautifulSoup(raw_html, features='html.parser')
+        # journal_url = 'https://arxiv.org/list/cond-mat.mes-hall/new'
+        # soup = BeautifulSoup(self.get_html(journal_url), features='html.parser')
         content = soup.find('div', id='dlpage')
         current_date_us = datetime.now() - timedelta(hours=12)
         date = current_date_us.strftime("%A, %d %B %Y")
@@ -271,9 +291,14 @@ class Arxiv(PaperSpider):
             ])
         return tabletitle, items
 
-    def get_items_mtrl_sci(self):
-        journal_url = 'https://arxiv.org/list/cond-mat.mtrl-sci/new'
-        soup = BeautifulSoup(self.get_html(journal_url), features='html.parser')
+    @staticmethod
+    def get_items_mtrl_sci():
+        # debug
+        with open('./arXiv2.html', 'r') as f:
+            raw_html = f.read()
+        soup = BeautifulSoup(raw_html, features='html.parser')
+        # journal_url = 'https://arxiv.org/list/cond-mat.mtrl-sci/new'
+        # soup = BeautifulSoup(self.get_html(journal_url), features='html.parser')
         content = soup.find('div', id='dlpage')
         current_date_us = datetime.now() - timedelta(hours=12)
         date = current_date_us.strftime("%A, %d %B %Y")

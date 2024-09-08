@@ -22,6 +22,7 @@ __date__ = "Feb. 7, 2020"
 # import sys
 import re
 import time
+import datetime
 # import sqlite3
 
 
@@ -72,6 +73,60 @@ class Author(SciDB):
     def f(self):
         pass
 
+class Mailing_list(SciDB):
+
+    def __init__(self, conn):
+        SciDB.__init__(self, conn)
+        self.id = None
+        self.subject = ''
+        self.update_date = None # unix timestamp
+        self.update_date_yymmdd = None # for example 20240812
+        self.update_date_weekday = None # in 0~6
+        self.list_paper_idx = []
+        self.list_paper_stridx = []
+        self.skimmed = None
+        self.starred = None
+
+    def db_creat(self, subject, list_paper_idx, list_paper_stridx, update_date=None, skimmed=False, starred=False):
+        self.update_date = update_date if update_date is not None else int(time.time())
+
+        date_object = datetime.datetime.fromtimestamp(self.update_date)
+        self.update_date_yymmdd = int(date_object.strftime('%Y%m%d'))
+        # days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        self.update_date_weekday = int(date_object.strftime('%w'))
+        db_paper_idx = ';'.join(map(str, list_paper_idx))
+        db_paper_stridx = ';'.join(map(str, list_paper_stridx))
+        self.c.execute(
+            """INSERT INTO mailing_list 
+            (subject, update_date, update_date_yymmdd, update_date_weekday, 
+            list_paper_idx, list_paper_stridx, skimmed, starred) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (subject, int(self.update_date), int(self.update_date_yymmdd), int(self.update_date_weekday),
+             db_paper_idx, db_paper_stridx, skimmed, starred)
+        )
+        self.subject = subject
+        self.list_paper_idx = list_paper_idx
+        self.list_paper_stridx = list_paper_stridx
+        self.skimmed, self.starred = skimmed, starred
+        self.id = self.c.lastrowid
+        self.conn.commit()
+
+    def db_load(self, idx):
+        self.id = idx
+        self.c.execute("""SELECT subject, update_date, update_date_yymmdd, update_date_weekday, 
+        list_paper_idx, list_paper_stridx, skimmed, starred FROM mailing_list WHERE id=?""", (idx,))
+        entry = self.c.fetchone()
+        if entry:
+            self.subject = entry[0]
+            self.update_date = int(entry[1])
+            self.update_date_yymmdd = int(entry[2])
+            self.update_date_weekday = int(entry[3])
+            self.list_paper_idx = list(map(int, entry[4].split(';')))  # Convert semicolon-separated string back to list
+            self.list_paper_stridx = list(map(str, entry[5].split(';')))  # Convert semicolon-separated string back to list
+            self.skimmed = bool(entry[6])
+            self.starred = bool(entry[7])
+        else:
+            raise ValueError(f"Mailing list with id {idx} not found.")
 
 class Tag(SciDB):
 
@@ -236,6 +291,8 @@ class Paper(SciDB):
         self._subject = []
         self._tags = []
         self._note = ''
+        self._keywords = ''
+        self._score_by_keywords = 0
 
     def db_creat(self):
         if len(self.c.execute("select id from papers where head_StrID='{}'".format(self.head_StrID)).fetchall()) == 0:
@@ -249,6 +306,9 @@ class Paper(SciDB):
         self.conn.commit()
         self.id = id_
         return self
+
+    def db_load(self, idx):
+        pass
 
     @property
     def doi(self):
@@ -368,6 +428,26 @@ class Paper(SciDB):
     @note.setter
     def note(self, value):
         self.c.execute("update papers set note=:value where id={}".format(self.id), {'value': value})
+        self.conn.commit()
+
+    @property
+    def keywords(self):
+        self._volume = self.c.execute("select keywords from papers where id={}".format(self.id)).fetchall()[0][0]
+        return self._score_by_keywords
+
+    @keywords.setter
+    def keywords(self, value):
+        self.c.execute("update papers set keywords=:value where id={}".format(self.id), {'value': value})
+        self.conn.commit()
+
+    @property
+    def score_by_keywords(self):
+        self._volume = self.c.execute("select score_by_keywords from papers where id={}".format(self.id)).fetchall()[0][0]
+        return self._score_by_keywords
+
+    @score_by_keywords.setter
+    def score_by_keywords(self, value):
+        self.c.execute("update papers set score_by_keywords={} where id={}".format(value, self.id))
         self.conn.commit()
 
     @property

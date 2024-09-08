@@ -18,9 +18,5 @@ setup(
     author_email=__email__,
     description='This is the paperspider module.',
     python_requires='>=3.6',
-    install_requires=['numpy', 'requests', 'pytz', 'apscheduler', 'sqlite3', 'bs4'],
+    install_requires=['numpy', 'requests', 'pytz', 'apscheduler', 'sqlite3', 'bs4', 'flask'],
 )
-'''
-  To release package, make sure:
-  1. server.py, foreground=False
-'''

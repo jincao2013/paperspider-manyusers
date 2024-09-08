@@ -29,7 +29,7 @@ from collections import OrderedDict
 
 class Config(object):
 
-    def __init__(self, config_path='/etc/paperspider/config.json'):
+    def __init__(self, config_path='/etc/paperspider/config.json', enable_log=True):
         self.config_path = config_path
         self.config = self.load_config_json()
 
@@ -39,7 +39,8 @@ class Config(object):
         self.log_path = self.config['log']['path']
         self.loglevel = self.config['log']['loglevel']
 
-        self.logger = self.set_logger()
+        self.enable_log = enable_log
+        if self.enable_log: self.logger = self.set_logger()
 
         self.init_db()
         self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
@@ -53,7 +54,7 @@ class Config(object):
             ssl=self.config['sender']['ssl'],
         )
         self.tags = []
-        self.keywords = []
+        self.keywords = [] # a union set of all <dict of tag>
         self.users = []
         self.set_tags()
         self.set_users()
@@ -70,7 +71,7 @@ class Config(object):
         self.num_tags = len(self.tags)
         self.num_subjects = 0
 
-        self.logger.debug('config complete')
+        if self.enable_log: self.logger.debug('config complete')
 
     def load_config_json(self):
         with open(self.config_path, 'r') as f:
@@ -80,9 +81,9 @@ class Config(object):
     def init_db(self):
         db_init_path = os.path.join(os.path.split(self.db_path)[0], 'sciDB.init.sql')
         if not os.path.exists(self.db_path):
-            self.logger.debug('Database not found')
+            if self.enable_log: self.logger.debug('Database not found')
             os.system('sqlite3 {} < {}'.format(self.db_path, db_init_path))
-            self.logger.debug('New Database created at {}'.format(self.db_path))
+            if self.enable_log: self.logger.debug('New Database created at {}'.format(self.db_path))
 
     def set_logger(self):
         logger = logging.getLogger()
