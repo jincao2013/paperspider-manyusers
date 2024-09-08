@@ -23,8 +23,6 @@ def generate_past_timestamps(num_days):
     seconds_per_day = 24 * 60 * 60
     return [now - i * seconds_per_day for i in range(num_days - 1, -1, -1)]
 
-
-
 if __name__ == '__main__':
     # os.chdir('/Users/jincao/Downloads/temp')
     os.chdir('/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test')

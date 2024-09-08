@@ -62,7 +62,7 @@ def get_mail_details(mail_id):
 
     # Create the parameterized query
     placeholders = ','.join('?' * len(list_paper_idx))
-    query = f"select title, journal, authors, public_date, year from papers where id in ({placeholders})"
+    query = f"select title, journal, authors, public_date, url, keywords, score_by_keywords, year from papers where id in ({placeholders})"
     papers_list = cursor.execute(query, list_paper_idx).fetchall()
 
     # email info
@@ -74,15 +74,21 @@ def get_mail_details(mail_id):
     }
     # Map results to a list of dictionaries
     papers = []
+    idx = 1
     for row in papers_list:
         paper_dict = {
-            'title': row[0],
+            'idx': idx,
+            'title': row[0].split("Title:")[-1],
             'journal': row[1],
             'authors': row[2],
             'public_date': row[3],
-            'year': row[4]
+            'url': row[4],
+            'keywords': row[5],
+            'score_by_keywords': row[6],
+            'year': row[7]
         }
         papers.append(paper_dict)
+        idx += 1
 
     return email_info, papers
 

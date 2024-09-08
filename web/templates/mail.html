@@ -2,14 +2,17 @@
 
 {% block content %}
 <div class="app">
-    {{ email_info.update_date_weekday }} {{ email_info.subject }} ({{ email_info.num_papers }} papers)
+    <div class="article" style="font-weight: bold">
+        {{ email_info.update_date_weekday }}, {{ email_info.subject }} ({{ email_info.num_papers }} papers)
+    </div>
     {% for paper in papers %}
     <div class="article">
-        <div>
-            <a class="article-title">{{ paper.title }}</a>
+        <div class="article-title">
+            <a href="{{ paper.url }}" target="_blank">{{ paper.title }}</a>
         </div>
         <div class="article-meta">
-            <span class="article-domain">{{ paper.journal }}</span> | {{ paper.authors }}
+            {{ paper.idx }} | <span class="article-journal">{{ paper.journal }}</span> |
+            {{ paper.score_by_keywords }} | {{ paper.keywords }} | {{ paper.authors }}
         </div>
     </div>
     {% endfor %}

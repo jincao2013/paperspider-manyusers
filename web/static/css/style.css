@@ -1,5 +1,6 @@
 body {
-    font-family: Verdana, Geneva, sans-serif;
+    /*font-family: Verdana, Geneva, sans-serif;*/
+    font-family: monospace;
     background-color: #f6f6ef;
     color: #333;
     margin: 0;
@@ -12,44 +13,87 @@ header {
     margin-bottom: 1rem;
     color: white;
     text-align: center;
+    text-decoration: none;
 }
 
 h1 {
     margin: 0;
     font-size: 1.2rem;
+    text-decoration: none;
 }
 
 .app {
-    max-width: 1200px;
+    max-width: 1600px;
     margin: 0 auto;
     padding: 1rem;
 }
 
+.title {
+    text-decoration: none;
+    color: #000000;
+}
+.title a {
+    text-decoration: none;
+    color: #000000;
+}
+.title a:hover {
+    text-decoration: none;
+    color: #ffffff;
+}
+
+/* index.html */
+.mail {
+    font-family: monospace;
+    margin-bottom: 0.1rem;
+    padding: 0.1rem;
+    text-decoration: none;
+    font-size: 1rem;
+}
+.mail a {
+    font-weight: bold;
+    color: #0473c2;
+    text-decoration: none;
+}
+.mail a:hover {
+    color: #ff6600;
+    text-decoration: underline;
+}
+
+/* mail.html */
 .article {
     margin-bottom: 0.3rem;
-    padding: 0.1rem;
+    /*padding: 0.1rem;*/
     /*background-color: #fff;*/
 }
 .article-title {
     color: #000;
-    text-decoration: none;
-    font-size: 0.8rem;
+    font-size: 0.9rem;
 }
-.article-domain {
-    font-size: 0.8rem;
-    color: #828282;
+.article-title a {
+    color: #000;
+    text-decoration: none;
+}
+.article-title a:hover {
+    color: #d21717;
+    text-decoration: none;
 }
 .article-meta {
+    font-size: 0.7rem;
+    color: #828282;
+}
+.article-journal {
+    font-weight: bold;
     font-size: 0.8rem;
     color: #828282;
 }
-.article-meta a {
-    color: #828282;
-    text-decoration: none;
-}
-.article-meta a:hover {
-    text-decoration: underline;
-}
+
+/*.article-meta a {*/
+/*    color: #d21717;*/
+/*    text-decoration: none;*/
+/*}*/
+/*.article-meta a:hover {*/
+/*    text-decoration: underline;*/
+/*}*/
 
 /*.papers-list {*/
 /*    list-style: none;*/

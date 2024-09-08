@@ -2,14 +2,18 @@
 
 {% block content %}
 <div class="app">
-    {% for thismail in mailing_list %}
-    <div class="article">
-        <div>
-            <a class="article-title" href="{{ url_for('mail', mail_id=thismail.id) }}">
-                {{ thismail.update_date_yymmdd }} {{ thismail.update_date_weekday }} {{ thismail.subject }}
-            </a>
-        </div>
+{% for thismail in mailing_list %}
+    {% if loop.first or thismail.update_date_yymmdd != mailing_list[loop.index0 - 1].update_date_yymmdd %}
+        {% if not loop.first %}</div>{% endif %}
+    <div class="mail">
+        <span class="">{{ thismail.update_date_yymmdd }} {{ thismail.update_date_weekday }}</span>
+    {% endif %}
+        <a class="mail" href="{{ url_for('mail', mail_id=thismail.id) }}">
+            {{ thismail.subject }}
+        </a>
+    {% if loop.last %}
     </div>
-    {% endfor %}
+    {% endif %}
+{% endfor %}
 </div>
 {% endblock %}
