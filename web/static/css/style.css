@@ -58,6 +58,42 @@ h1 {
     color: #ff6600;
     text-decoration: underline;
 }
+.mail-status {
+    color: #828282;
+    font-weight: normal;
+    font-size: 0.5rem;
+}
+.mail-link-wrapper {
+    display: inline-block;
+    position: relative;
+}
+.status {
+    cursor: pointer;
+    position: absolute;
+    top: 0px;
+    right: -6px;
+    width: 8px;
+    height: 8px;
+}
+.status.readed polygon {
+    fill: #a2a2a2;
+}
+.status.unread polygon {
+    fill: #ff6600;
+}
+.action-text {
+    color: #828282;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 10px;
+    display: inline-block;
+    padding: 5px; /* Add some padding to make the shadow box more visible */
+    transition: box-shadow 0.3s ease; /* Smooth transition for the shadow effect */
+}
+.action-text:hover {
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Shadow box effect */
+    background-color: #f0f0f0; /* Optional: a subtle background color on hover */
+}
 
 /* mail.html */
 .article {

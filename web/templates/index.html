@@ -8,12 +8,105 @@
     <div class="mail">
         <span class="">{{ thismail.update_date_yymmdd }} {{ thismail.update_date_weekday }}</span>
     {% endif %}
-        <a class="mail" href="{{ url_for('mail', mail_id=thismail.id) }}">
-            {{ thismail.subject }}
-        </a>
+        <span class="mail-link-wrapper">
+            <a class="mail" id="link{{ thismail.id }}" href="{{ url_for('mail', mail_id=thismail.id) }}">
+                {{ thismail.subject }}
+            </a>
+            <svg class="status unread" id="item{{ thismail.id }}" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+                <!-- to use circle, change .status.readed polygon to .status.readed circle -->
+                <!-- <circle cx="5" cy="5" r="3"></circle>-->
+                <polygon points="0,0 10,0 5,10"></polygon>
+<!--                <polygon points="0,10 10,10 5,0"></polygon>  this is a upper triangle -->
+            </svg>
+        </span>
     {% if loop.last %}
     </div>
     {% endif %}
 {% endfor %}
+
+    <div class="action-text" id="exportText">Export Read Status</div>
+    <div class="action-text" id="importText">Import Read Status</div>
+    <input type="file" id="fileInput" accept=".json" style="display: none;">
 </div>
+
+<script>
+  const statuses = document.querySelectorAll('.status');
+
+  // Toggle read/unread status on click
+  statuses.forEach(status => {
+    status.addEventListener('click', () => {
+      if (status.classList.contains('unread')) {
+        status.classList.remove('unread');
+        status.classList.add('readed');
+      } else {
+        status.classList.remove('readed');
+        status.classList.add('unread');
+      }
+      const id = status.id;
+      const isReaded = status.classList.contains('readed');
+      localStorage.setItem(id, isReaded);
+    });
+  });
+
+  // Restore email status from localStorage
+  window.onload = function() {
+    statuses.forEach(status => {
+      const id = status.id;
+      const savedState = localStorage.getItem(id);
+      if (savedState === 'true') {
+        status.classList.remove('unread');
+        status.classList.add('readed');
+      } else {
+        status.classList.remove('readed');
+        status.classList.add('unread');
+      }
+    });
+  };
+
+  // Export email status to JSON file
+  document.getElementById('exportText').addEventListener('click', () => {
+    const data = {};
+    statuses.forEach(status => {
+      const id = status.id;
+      const isReaded = status.classList.contains('readed');
+      data[id] = isReaded;
+    });
+    const json = JSON.stringify(data);
+    const blob = new Blob([json], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'cond-mat-update.json';
+    link.click();
+  });
+
+  // Import JSON file and apply email status
+  document.getElementById('importText').addEventListener('click', () => {
+    document.getElementById('fileInput').click();
+  });
+
+  document.getElementById('fileInput').addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const importedData = JSON.parse(event.target.result);
+        Object.keys(importedData).forEach(id => {
+          const status = document.getElementById(id);
+          if (status) {
+            const isReaded = importedData[id];
+            if (isReaded) {
+              status.classList.remove('unread');
+              status.classList.add('readed');
+            } else {
+              status.classList.remove('readed');
+              status.classList.add('unread');
+            }
+            localStorage.setItem(id, isReaded);
+          }
+        });
+      };
+      reader.readAsText(file);
+    }
+  });
+</script>
 {% endblock %}
