@@ -119,21 +119,21 @@ def mail(mail_id):
 
 
 if __name__ == '__main__':
-    # usage = 'usage: python3 app.py /etc/paperspider/config.json'
-    # try:
-    #     config_path = sys.argv[1]
-    # except IndexError:
-    #     print(usage)
-    #     sys.exit(1)
-    # config = Config(config_path, enable_log=False)
-    # app.run(host=config.web_host, port=config.web_port, debug=False)
-
-    ''' debug '''
-    os.chdir('/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test')
-    config_path = '/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test/config.jin.json'
+    usage = 'usage: python3 app.py /etc/paperspider/config.json'
+    try:
+        config_path = sys.argv[1]
+    except IndexError:
+        print(usage)
+        sys.exit(1)
     config = Config(config_path, enable_log=False)
-    app.run(debug=True)
+    app.run(host=config.web_host, port=config.web_port, debug=False)
 
-    conn = config.conn
-    cursor = conn.cursor()
+    # ''' debug '''
+    # os.chdir('/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test')
+    # config_path = '/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test/config.jin.json'
+    # config = Config(config_path, enable_log=False)
+    # app.run(debug=True)
+    #
+    # conn = config.conn
+    # cursor = conn.cursor()
 
