@@ -1,5 +1,6 @@
 {
   "sender": {
+    "enable": false,
     "email": "",
     "password": "",
     "smtp_server": "",

@@ -49,6 +49,7 @@ class Config(object):
         self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.c = self.conn.cursor()
 
+        self.enable_sender = self.config['sender']['enable']
         self.sender = Sender(
             user=self.config['sender']['email'],
             password=self.config['sender']['password'],

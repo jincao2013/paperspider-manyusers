@@ -71,7 +71,12 @@ def get_mail_details(mail_id):
 
     # Create the parameterized query
     placeholders = ','.join('?' * len(list_paper_idx))
-    query = f"select title, journal, authors, public_date, url, keywords, score_by_keywords, year from papers where id in ({placeholders})"
+    query = f"""
+        select title, journal, authors, public_date, url, keywords, score_by_keywords, year 
+        from papers 
+        where id in ({placeholders})
+        order by score_by_keywords desc
+    """
     papers_list = cursor.execute(query, list_paper_idx).fetchall()
 
     # email info
@@ -114,21 +119,21 @@ def mail(mail_id):
 
 
 if __name__ == '__main__':
-    usage = 'usage: python3 app.py /etc/paperspider/config.json'
-    try:
-        config_path = sys.argv[1]
-    except IndexError:
-        print(usage)
-        sys.exit(1)
-    config = Config(config_path, enable_log=False)
-    app.run(host=config.web_host, port=config.web_port, debug=False)
-
-    # ''' debug '''
-    # os.chdir('/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test')
-    # config_path = '/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test/config.jin.json'
+    # usage = 'usage: python3 app.py /etc/paperspider/config.json'
+    # try:
+    #     config_path = sys.argv[1]
+    # except IndexError:
+    #     print(usage)
+    #     sys.exit(1)
     # config = Config(config_path, enable_log=False)
-    # app.run(debug=True)
+    # app.run(host=config.web_host, port=config.web_port, debug=False)
 
-    # conn = config.conn
-    # cursor = conn.cursor()
+    ''' debug '''
+    os.chdir('/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test')
+    config_path = '/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test/config.jin.json'
+    config = Config(config_path, enable_log=False)
+    app.run(debug=True)
+
+    conn = config.conn
+    cursor = conn.cursor()
 

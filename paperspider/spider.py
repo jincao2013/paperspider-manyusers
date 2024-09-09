@@ -81,6 +81,7 @@ class PaperSpider(object):
         self.logger = config.logger
         self.conn = config.conn
         self.c = self.conn.cursor()
+        self.enable_sender = config.enable_sender
         self.sender = config.sender
 
         # self.journal_url = None
@@ -178,7 +179,7 @@ class PaperSpider(object):
         self.papers_html = [i.get_html() for i in self.papers]
         self.papers_html = [self.papers[i].get_html(self.keywords_of_papers[i], self.score_by_keywords[i]) for i in range(self.num_items)]
 
-        if sendemail:
+        if sendemail and self.enable_sender:
             self.send_emails()
 
     def update_mailing_list(self):
