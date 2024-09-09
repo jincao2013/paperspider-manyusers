@@ -12,6 +12,7 @@ recursive-include paperspider *
 recursive-include paperspider-db *
 recursive-include service.d *
 
+global-exclude *.sqlite
 global-exclude *.pyc
 global-exclude .DS_Store
 global-exclude .idea
