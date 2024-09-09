@@ -3,7 +3,7 @@
 {% block content %}
 <div class="app">
     <div class="article" style="font-weight: bold">
-        {{ email_info.update_date_weekday }}, {{ email_info.subject }} ({{ email_info.num_papers }} papers)
+        {{ email_info.update_date_weekday }}, {{ email_info.announcement_date }} from {{ email_info.subject }} ({{ email_info.num_papers }} papers)
     </div>
     {% for paper in papers %}
     <div class="article">
@@ -12,7 +12,7 @@
         </div>
         <div class="article-meta">
             {{ paper.idx }} | <span class="article-journal">{{ paper.journal }}</span> |
-            {{ paper.score_by_keywords }} | {{ paper.keywords }} | {{ paper.authors }}
+            {{ paper.score_by_keywords }} pt ({{ paper.keywords }}) | {{ paper.authors }}
         </div>
     </div>
     {% endfor %}

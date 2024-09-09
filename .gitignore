@@ -23,7 +23,7 @@ share/python-wheels/
 *.egg
 *.egg-info
 MANIFEST.in
-
+*.sqlite
 
 # pycharm
 .idea/

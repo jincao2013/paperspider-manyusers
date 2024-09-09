@@ -42,9 +42,9 @@ CREATE TABLE IF NOT EXISTS papers (
     abstract TEXT,                          -- Abstract of the paper
     note TEXT,                              -- Additional notes
     head_added_date INTEGER NOT NULL,       -- Timestamp of when the paper was added
-    head_StrID TEXT NOT NULL                -- Unique identifier string for the paper
+    head_StrID TEXT NOT NULL,               -- Unique identifier string for the paper
     keywords TEXT,                          -- keywords of paper
-    score_by_keywords INTEGER,              -- score calculated by keywords of paper
+    score_by_keywords INTEGER               -- score calculated by keywords of paper
 );
 
 -- Table to map users to tags (many-to-many relationship)
@@ -83,22 +83,14 @@ CREATE TABLE IF NOT EXISTS map_user_preference (
 
 -- CREATE TABLE map_user_preference
 -- (
--- 	id integer
--- 		constraint map_user_preference_pk
--- 			primary key,
--- 	user_id integer not null references users,
--- 	paper_id integer not null references papers,
--- 	user_name integer not null
+--  id integer
+--      constraint map_user_preference_pk
+--          primary key,
+--  user_id integer not null references users,
+--  paper_id integer not null references papers,
+--  user_name integer not null
 -- , preference integer default 0 not null);
 
--- Ensure unique tag names
-CREATE UNIQUE INDEX tags_tag_uindex ON tags (tag);
-
--- Ensure unique subject names
-CREATE UNIQUE INDEX subjects_subject_uindex ON subjects (subject);
-
--- Ensure the paper's head_StrID is unique
-CREATE UNIQUE INDEX papers_head_StrID_uindex ON papers (head_StrID);
 
 -- Table to store mailing_list
 -- day of week is in order: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
@@ -110,9 +102,18 @@ CREATE TABLE IF NOT EXISTS mailing_list (
     update_date_weekday INTEGER NOT NULL,   -- weekday of update_date
     list_paper_idx TEXT,                    -- indexs of paper
     list_paper_stridx TEXT,                 -- str indexs of paper
-    skimmed	BLOB,                           -- read status of mail
-    starred	BLOB                            -- flag of mail
+    skimmed BLOB,                           -- read status of mail
+    starred BLOB                            -- flag of mail
 );
+
+-- Ensure unique tag names
+CREATE UNIQUE INDEX tags_tag_uindex ON tags (tag);
+
+-- Ensure unique subject names
+CREATE UNIQUE INDEX subjects_subject_uindex ON subjects (subject);
+
+-- Ensure the paper's head_StrID is unique
+CREATE UNIQUE INDEX papers_head_StrID_uindex ON papers (head_StrID);
 
 -- Commit the transaction
 COMMIT;

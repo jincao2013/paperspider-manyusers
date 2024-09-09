@@ -20,9 +20,10 @@ __date__ = "Sep. 8, 2024"
 
 import os
 import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import datetime
 from paperspider.config import Config
 from flask import Flask, render_template
-import sqlite3
 
 app = Flask(__name__)
 
@@ -31,7 +32,11 @@ def get_mailing_list():
     cursor = conn.cursor()
 
     def_weeks = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    _mailing_list = cursor.execute("select id, subject, skimmed, starred, update_date_yymmdd, update_date_weekday from mailing_list").fetchall()
+    _mailing_list = cursor.execute("""
+        select id, subject, skimmed, starred, update_date_yymmdd, update_date_weekday 
+        from mailing_list
+        order by update_date_yymmdd desc 
+    """).fetchall()
     mailing_list = []
     for row in _mailing_list:
         _dict = {
@@ -56,9 +61,13 @@ def get_mail_details(mail_id):
 
     thismail = cursor.execute("select subject, update_date, update_date_weekday, list_paper_idx from mailing_list where id={}".format(mail_id)).fetchone()
     subject = thismail[0]
+    list_paper_idx = [i for i in map(int, thismail[3].split(';'))]
+
+    # display time
     update_date = thismail[1]
     update_date_weekday = def_weeks[thismail[2]]
-    list_paper_idx = [i for i in map(int, thismail[3].split(';'))]
+    date_object = datetime.datetime.fromtimestamp(update_date)
+    announcement_date = date_object.strftime("%d %B %Y")
 
     # Create the parameterized query
     placeholders = ','.join('?' * len(list_paper_idx))
@@ -68,7 +77,7 @@ def get_mail_details(mail_id):
     # email info
     email_info = {
         'subject': subject,
-        'update_date': update_date,
+        'announcement_date': announcement_date,
         'update_date_weekday': update_date_weekday,
         'num_papers': len(list_paper_idx),
     }
@@ -78,9 +87,9 @@ def get_mail_details(mail_id):
     for row in papers_list:
         paper_dict = {
             'idx': idx,
-            'title': row[0].split("Title:")[-1],
+            'title': row[0].replace('\n', '').split("Title:")[-1],
             'journal': row[1],
-            'authors': row[2],
+            'authors': row[2].replace('\n', '').split("Authors:")[-1],
             'public_date': row[3],
             'url': row[4],
             'keywords': row[5],
@@ -105,20 +114,20 @@ def mail(mail_id):
 
 
 if __name__ == '__main__':
-    # usage = 'usage: python3 app.py /etc/paperspider/config.json'
-    # try:
-    #     config_path = sys.argv[1]
-    # except IndexError:
-    #     print(usage)
-    #     sys.exit(1)
+    usage = 'usage: python3 app.py /etc/paperspider/config.json'
+    try:
+        config_path = sys.argv[1]
+    except IndexError:
+        print(usage)
+        sys.exit(1)
+    config = Config(config_path, enable_log=False)
+    app.run(host=config.web_host, port=config.web_port, debug=False)
+
+    # ''' debug '''
+    # os.chdir('/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test')
+    # config_path = '/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test/config.jin.json'
     # config = Config(config_path, enable_log=False)
     # app.run(debug=True)
-
-    ''' debug '''
-    os.chdir('/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test')
-    config_path = '/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test/config.test.json'
-    config = Config(config_path, enable_log=False)
-    app.run(debug=True)
 
     # conn = config.conn
     # cursor = conn.cursor()

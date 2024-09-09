@@ -38,8 +38,11 @@ class Config(object):
         self.db_path = self.config['database']['path']
         self.log_path = self.config['log']['path']
         self.loglevel = self.config['log']['loglevel']
-
         self.enable_log = enable_log
+
+        self.web_host = self.config['web']['host']
+        self.web_port = self.config['web']['port']
+
         if self.enable_log: self.logger = self.set_logger()
 
         self.init_db()

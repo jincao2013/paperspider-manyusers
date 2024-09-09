@@ -26,7 +26,7 @@ def generate_past_timestamps(num_days):
 if __name__ == '__main__':
     # os.chdir('/Users/jincao/Downloads/temp')
     os.chdir('/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test')
-    config_path = '/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test/config.test.json'
+    config_path = '/test/config.jin.json'
     config = Config(config_path)
 
     # arxiv = Arxiv(config)
