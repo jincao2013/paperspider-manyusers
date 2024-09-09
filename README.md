@@ -1,11 +1,6 @@
 # Paperspider-ManyUsers 
 
-`paperspider-manyusers`  is designed for researchers in physical sciences. Equipped with built-in TAG system and schedulers, this program gathers article information timely and efficiently from reputable sources such as Physical Review, Nature (and its sub-journals), and arXiv. The collected data is then categorized with predefined tags and distributed to users via email. 
-
-## Highlight
-
-- Tag system to follow update of papers from Physical Review, Nature, and arXiv
-- Multi-user support
+This code helps you track updates from arXiv, Physical Review, Nature, and its sub-journals. The collected papers will be tagged with keywords configured by users. It can send updates via email. A Hacker News-style web GUI is provided as well. Have fun! 
 
 ## Usage
 
@@ -23,3 +18,4 @@ For new installations:
 - smtplib (smtp)
 - apscheduler (scheduler)
 - pytz
+- flask
