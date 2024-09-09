@@ -10,6 +10,9 @@ sudo cp config.json /etc/paperspider/
 
 # Configure and start the service
 sudo cp service.d/paperspider.service /etc/systemd/system
+sudo cp service.d/paperspider_web.service /etc/systemd/system
 sudo systemctl daemon-reload
 sudo systemctl enable paperspider.service
+sudo systemctl enable paperspider_web.service
 sudo systemctl restart paperspider.service
+sudo systemctl restart paperspider_web.service
