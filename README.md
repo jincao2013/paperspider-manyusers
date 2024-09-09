@@ -1,6 +1,6 @@
 # Paperspider-ManyUsers 
 
-This code helps you track updates from arXiv, Physical Review, Nature, and its sub-journals. The collected papers will be tagged with keywords configured by users. It can send updates via email. A Hacker News-style web GUI is provided as well. Have fun! 
+This code helps you track updates from arXiv, Physical Review, Nature, and its sub-journals. The collected papers will be tagged with keywords configured by users. It can send updates via email. A Hacker News style web GUI is provided as well. Have fun! 
 
 ## Usage
 
