@@ -41,6 +41,7 @@ def get_mailing_list():
     for row in _mailing_list:
         _dict = {
             'id': row[0],
+            'strid': row[1]+'_'+str(row[4]),
             'subject': row[1],
             'skimmed': row[2],
             'starred': row[3],

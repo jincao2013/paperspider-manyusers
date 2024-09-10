@@ -9,10 +9,10 @@
         <span class="">{{ thismail.update_date_yymmdd }} {{ thismail.update_date_weekday }}</span>
     {% endif %}
         <span class="mail-link-wrapper">
-            <a class="mail" id="link{{ thismail.id }}" href="{{ url_for('mail', mail_id=thismail.id) }}">
+            <a class="mail" id="link_{{ thismail.strid }}" href="{{ url_for('mail', mail_id=thismail.id) }}">
                 {{ thismail.subject }}
             </a>
-            <svg class="status unread" id="item{{ thismail.id }}" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+            <svg class="status unread" id="item_{{ thismail.strid }}" viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
                 <!-- to use circle, change .status.readed polygon to .status.readed circle -->
                 <!-- <circle cx="5" cy="5" r="3"></circle>-->
                 <polygon points="0,0 10,0 5,10"></polygon>
@@ -27,6 +27,7 @@
     <div class="action-text" id="exportText">Export Read Status</div>
     <div class="action-text" id="importText">Import Read Status</div>
     <input type="file" id="fileInput" accept=".json" style="display: none;">
+    <div class="action-text" id="clearText">Clear Read Status</div>
 </div>
 
 <script>
@@ -108,5 +109,16 @@
       reader.readAsText(file);
     }
   });
+
+document.getElementById('clearText').addEventListener('click', function() {
+    // Show a confirmation popup
+    const confirmation = confirm('Are you sure you want to clear the read status? This action cannot be undone.');
+
+    if (confirmation) {
+        localStorage.clear();
+        alert('Read status has been cleared. Refresh the page to apply the changes.');
+    }
+});
+
 </script>
 {% endblock %}
