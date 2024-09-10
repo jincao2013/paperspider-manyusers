@@ -26,10 +26,10 @@ def generate_past_timestamps(num_days):
 if __name__ == '__main__':
     # os.chdir('/Users/jincao/Downloads/temp')
     os.chdir('/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test')
-    config_path = '/test/config.jin.json'
+    config_path = '/Users/jincao/Seafile/Coding/github/paperspider-manyusers/test/config.jin.json'
     config = Config(config_path)
 
-    # arxiv = Arxiv(config)
+    arxiv = Arxiv(config)
     # prl = ApsPRL(config)
     # prx = ApsPRX(config)
     # prb = ApsPRB(config)
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     # nat_nano = Nature_Nanotechnology(config)
     # nat_comm = Nature_Communications(config)
 
-    # arxiv.main(sendemail=False)
+    arxiv.main(sendemail=False)
     # nature.main(sendemail=False)
     # nat_phys.main(sendemail=False)
     # nat_matr.main(sendemail=False)
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     #     f.write(' '.join(nature.papers_html))
     #
 
-    conn = config.conn
+    # conn = config.conn
     # # head_StrID = 'test'
     # # paper = Paper(conn, head_StrID)
     # # paper.db_creat()

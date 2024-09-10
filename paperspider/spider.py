@@ -78,7 +78,8 @@ class PaperSpider(object):
 
     def __init__(self, config):
         self.config = config
-        self.logger = config.logger
+        self.enable_log = config.enable_log
+        if self.enable_log: self.logger = config.logger
         self.conn = config.conn
         self.c = self.conn.cursor()
         self.enable_sender = config.enable_sender
@@ -154,6 +155,13 @@ class PaperSpider(object):
                 _paper.__setattr__(name, value) # add details (in item) of this entry
             self.num_items += 1
 
+        ''' report today's update in log '''
+        # print("self.num_items =", self.num_items)
+        if self.num_items == 0:
+            if self.enable_log: self.logger.info('No update today.')
+            return
+        if self.enable_log: self.logger.info('{} new papers'.format(self.num_items))
+
         ''' cal keywords and score_by_keywords of today's papers '''
         self.keyword_counts_matrix = np.zeros([self.num_items, self.num_keywords])
         self.score_by_keywords = np.zeros([self.num_items])
@@ -167,18 +175,13 @@ class PaperSpider(object):
             _paper.keywords = self.keywords_of_papers[ip]
             _paper.score_by_keywords = self.score_by_keywords[ip]
 
-        ''' report today's update in log '''
-        if self.num_items == 0:
-            self.logger.info('No update today.')
-            return
-        self.logger.info('{} new papers'.format(self.num_items))
-
         ''' assign tags to each papers and compute preference for each users of each papers (preferece matrix) '''
         [i.pair_tags() for i in self.papers] # assign tag for today's paper
         self.preference_matrix = np.array([i.compute_all_users_preferences(self.user_names) for i in self.papers]).T # [num_users * num_items]
         self.papers_html = [i.get_html() for i in self.papers]
         self.papers_html = [self.papers[i].get_html(self.keywords_of_papers[i], self.score_by_keywords[i]) for i in range(self.num_items)]
 
+        self.update_mailing_list()
         if sendemail and self.enable_sender:
             self.send_emails()
 
@@ -189,8 +192,31 @@ class PaperSpider(object):
 
         list_paper_idx = [self.papers[i].id for i in selected_sorted_idx]
         list_paper_stridx = [self.papers[i].head_StrID for i in selected_sorted_idx]
+
+        if 'arXiv' in self.journal_name:
+            subject = 'arXiv'
+        elif 'Phys. Rev. B' in self.journal_name:
+            subject = 'PRB'
+        elif 'Phys. Rev. Lett.' in self.journal_name:
+            subject = 'PRL'
+        elif 'Phys. Rev. Research' in self.journal_name:
+            subject = 'PRRes'
+        elif 'Phys. Rev. X' in self.journal_name:
+            subject = 'PRX'
+        elif 'Nature Communications' in self.journal_name:
+            subject = 'Nat_Commun'
+        elif 'Nature Nanotechnology' in self.journal_name:
+            subject = 'Nat_Nanotechnol'
+        elif 'Nature Materials' in self.journal_name:
+            subject = 'Nat_Mater'
+        elif 'Nature Physics' in self.journal_name:
+            subject = 'Nat_Phys'
+        else:
+            subject = self.journal_name
+
         mailing_list = Mailing_list(self.conn)
-        mailing_list.db_creat(self.journal_name, list_paper_idx, list_paper_stridx)
+        mailing_list.db_creat(subject, list_paper_idx, list_paper_stridx)
+        if self.enable_log: self.logger.info('added {} ({} papers) to mailing list'.format(subject, self.num_items))
 
     def send_emails(self):
         self.email_count = [0 for i in range(self.num_users)]
@@ -228,12 +254,12 @@ class PaperSpider(object):
 
         ''' send email to user '''
         if self.email_count[idx_user] > 0:
-            self.logger.info('email {} new articals to {}'.format(self.email_count[idx_user], self.user_names[idx_user]))
+            if self.enable_log: self.logger.info('email {} new articals to {}'.format(self.email_count[idx_user], self.user_names[idx_user]))
             # self.send_email(self.user_emails[i], contents[i])
             self.sender.send_email(self.user_emails[idx_user], title, content_head, contents)
             time.sleep(random.random() * 60 * 1)
         else:
-            self.logger.info('email no articals to {}'.format(self.user_names[idx_user]))
+            if self.enable_log: self.logger.info('email no articals to {}'.format(self.user_names[idx_user]))
 
 '''
   * arXiv spider
@@ -257,14 +283,13 @@ class Arxiv(PaperSpider):
 
         return tabletitle, items
 
-    @staticmethod
-    def get_items_mes_hall():
+    def get_items_mes_hall(self):
         # debug
-        with open('./arXiv1.html', 'r') as f:
-            raw_html = f.read()
-        soup = BeautifulSoup(raw_html, features='html.parser')
-        # journal_url = 'https://arxiv.org/list/cond-mat.mes-hall/new'
-        # soup = BeautifulSoup(self.get_html(journal_url), features='html.parser')
+        # with open('./arXiv1.html', 'r') as f:
+        #     raw_html = f.read()
+        # soup = BeautifulSoup(raw_html, features='html.parser')
+        journal_url = 'https://arxiv.org/list/cond-mat.mes-hall/new'
+        soup = BeautifulSoup(self.get_html(journal_url), features='html.parser')
         content = soup.find('div', id='dlpage')
         current_date_us = datetime.now() - timedelta(hours=12)
         date = current_date_us.strftime("%A, %d %B %Y")
@@ -292,14 +317,13 @@ class Arxiv(PaperSpider):
             ])
         return tabletitle, items
 
-    @staticmethod
-    def get_items_mtrl_sci():
+    def get_items_mtrl_sci(self):
         # debug
-        with open('./arXiv2.html', 'r') as f:
-            raw_html = f.read()
-        soup = BeautifulSoup(raw_html, features='html.parser')
-        # journal_url = 'https://arxiv.org/list/cond-mat.mtrl-sci/new'
-        # soup = BeautifulSoup(self.get_html(journal_url), features='html.parser')
+        # with open('./arXiv2.html', 'r') as f:
+        #     raw_html = f.read()
+        # soup = BeautifulSoup(raw_html, features='html.parser')
+        journal_url = 'https://arxiv.org/list/cond-mat.mtrl-sci/new'
+        soup = BeautifulSoup(self.get_html(journal_url), features='html.parser')
         content = soup.find('div', id='dlpage')
         current_date_us = datetime.now() - timedelta(hours=12)
         date = current_date_us.strftime("%A, %d %B %Y")
