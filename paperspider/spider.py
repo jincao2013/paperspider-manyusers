@@ -20,19 +20,22 @@ __date__ = "Feb. 7, 2020"
 
 # import os
 # import sys
+# import sqlite3
+# import logging
+# import re
 import time
 from datetime import datetime, timedelta
 import random
-# import sqlite3
-# import logging
 import numpy as np
-import re
 import requests
 from bs4 import BeautifulSoup
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.header import Header
+# from selenium import webdriver
+# from selenium.webdriver.firefox.service import Service as firefoxservice
+# from webdriver_manager.firefox import GeckoDriverManager
 from paperspider.dbAPI import Paper, Mailing_list
 from paperspider.dbAPI import keyword_matching
 
@@ -216,7 +219,7 @@ class PaperSpider(object):
 
         mailing_list = Mailing_list(self.conn)
         mailing_list.db_creat(subject, list_paper_idx, list_paper_stridx)
-        if self.enable_log: self.logger.info('added {} ({} papers) to mailing list'.format(subject, self.num_items))
+        if self.enable_log: self.logger.info('added {} ({} papers) to mailing list'.format(subject, len(list_paper_idx)))
 
     def send_emails(self):
         self.email_count = [0 for i in range(self.num_users)]
@@ -353,6 +356,12 @@ class Arxiv(PaperSpider):
 
 '''
   * APS Spider 
+    - Due to Cloudflare protection, we are using RSS feeds instead, see https://journals.aps.org/feeds
+    - In these RSS feeds: 
+      PRL: updates about 0~5 papers per day, showing papers from the last 30 days (100 papers)
+      PRB: updates about 30 papers per day, showing papers from the last 7 days (100 papers)
+      PRX: updates about 1 papers per day, showing papers from the last 90 days (100 papers)
+      PRResearch: updates about 10 papers per day, showing papers from the last 7 days (100 papers)
 '''
 class Aps(object):
 
@@ -360,87 +369,23 @@ class Aps(object):
         self.journal_url = 'https://journals.aps.org'
         self.journal_name = 'Phys. Rev.'
         self.journal_note = ''
-        self.aps_subjects_label_concerned = {
-            'Condensed Matter Physics',
-            'Strongly Correlated Materials',
-            'Materials Science',
-            'Computational Physics',
-            'Superconductivity',
-            'Topological Insulators',
-            'Magnetism',
-            'Graphene',
-        }
-        self.xhr_headers = {
-            'x-requested-with': 'XMLHttpRequest',
-        }
 
 class ApsPRL(PaperSpider, Aps):
 
     def __init__(self, config):
         PaperSpider.__init__(self, config)
         Aps.__init__(self)
+        self.journal_url = r'http://feeds.aps.org/rss/tocsec/PRL-CondensedMatterStructureetc.xml'
         self.journal_name = 'Phys. Rev. Lett.'
         self.journal_note = 'PRL:Cond-mat'
 
     def get_items(self):
-        journal_url = self.journal_url
-        journal_name = self.journal_name
-        journal_note = self.journal_note
-        xhr_headers = self.xhr_headers
-
-        # get current issue url
-        response = requests.get(journal_url + '/prl')
-        soup = BeautifulSoup(response.text, features='html.parser')
-        current_issue_link = soup.find('a', id='current-issue-link').attrs.get('href')
-
-        # get current issue
+        tabletitle, _items = get_items_aps_from_rss(self.journal_name, self.journal_url, self.journal_note)
         items = []
-        tabletitle = ['head_StrID', 'url', 'title', 'authors', 'note', 'abstract', 'version', 'journal', 'volume',
-                      'issue', 'public_date']
-
-        response = requests.get(journal_url + current_issue_link)
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        vol_issue = soup.find('section', id='title').h2.text
-        volume, issue = re.findall(r'\d+', vol_issue)
-
-        content = soup.find('div', id='toc-content')
-        content = content.find_all('section', class_='open')
-        content_select = []
-        for i in content:
-            if 'Condensed Matter' in i.h4.text:
-                content_select += i.find_all('div', class_='article panel article-result')
-
-        list_data_id = [i.attrs['data-id'] for i in content_select]
-        list_head_StrID = [i.split('/')[-1] for i in list_data_id]
-        list_url = [journal_url + i.a.attrs['href'] for i in content_select]
-        list_title = [i.a.text for i in content_select]
-        list_authors = [i.find('h6', class_='authors').text for i in content_select]
-        list_note = [journal_note for i in content_select]
-        list_abstract = []
-        list_version = ['published' for i in content_select]
-        list_journal = [journal_name for i in content_select]
-        list_volume = [volume for i in content_select]
-        list_issue = [issue for i in content_select]
-        list_public_date = [i.find('h6', class_='pub-info').text.split('Published')[-1].strip() for i in
-                            content_select]
-
-        with requests.Session() as session:
-            for i in range(len(content_select)):
-                if len(self.c.execute("select id from papers where head_StrID=:value", {'value': list_head_StrID[i]}).fetchall()) != 0:
-                    list_abstract.append('Exist in db.')
-                    continue
-                _r = session.get(''.join([journal_url, '/_api/v1/articles/', list_data_id[i], '/abstract']), headers=xhr_headers)
-                if _r.status_code == 200:
-                    list_abstract.append(_r.text[3:-4])
-                else:
-                    list_abstract.append('ERROR in get abstract: <Response [{}]>'.format(_r.status_code))
-
-        _zip = zip(list_head_StrID, list_url, list_title, list_authors, list_note, list_abstract,
-                   list_version, list_journal, list_volume, list_issue, list_public_date)
-        for i, item in enumerate(_zip):
-            items.append(item)
-
+        for i in _items:
+            if len(self.c.execute("select id from papers where head_StrID='{}'".format(i[0])).fetchall()) != 0:
+                continue
+            items.append(i)
         return tabletitle, items
 
 class ApsPRX(PaperSpider, Aps):
@@ -448,140 +393,17 @@ class ApsPRX(PaperSpider, Aps):
     def __init__(self, config):
         PaperSpider.__init__(self, config)
         Aps.__init__(self)
+        self.journal_url = r'http://feeds.aps.org/rss/recent/prx.xml'
         self.journal_name = 'Phys. Rev. X'
-        self.journal_note = 'PRX:selected'
+        self.journal_note = 'allPRX'
 
     def get_items(self):
-        aps_subjects_label_concerned = self.aps_subjects_label_concerned
-        journal_url = self.journal_url
-        journal_name = self.journal_name
-        journal_note = self.journal_note
-        xhr_headers = self.xhr_headers
-
-        # get current issue url
-        response = requests.get(journal_url + '/prx')
-        soup = BeautifulSoup(response.text, features='html.parser')
-        current_issue_link = soup.find('a', id='current-issue-link').attrs.get('href')
-
-        # get current issue
+        tabletitle, _items = get_items_aps_from_rss(self.journal_name, self.journal_url, self.journal_note)
         items = []
-        tabletitle = ['head_StrID', 'url', 'title', 'authors', 'note', 'abstract', 'version', 'journal', 'volume',
-                      'issue', 'public_date']
-        response = requests.get(journal_url + current_issue_link)
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        vol_issue = soup.find('section', id='title').h2.text
-        volume, issue = re.findall(r'\d+', vol_issue)
-
-        content = soup.find('div', id='toc-content')
-        content = content.find_all('div', class_='article-result')
-        content_select = []
-        for i in content:
-            subjects_label = {j.text for j in i.find_all('a', class_='label')}
-            # print(prx_subjects_label & prx_subjects_label_concerned)
-            if len(subjects_label & aps_subjects_label_concerned) > 0:
-                content_select.append(i)
-
-        list_data_id = [i.attrs['data-id'] for i in content_select]
-        list_head_StrID = [i.split('/')[-1] for i in list_data_id]
-        list_url = [journal_url + i.a.attrs['href'] for i in content_select]
-        list_title = [i.a.text for i in content_select]
-        list_authors = [i.find('h6', class_='authors').text for i in content_select]
-        list_note = [journal_note for i in content_select]
-        list_abstract = []
-        list_version = ['published' for i in content_select]
-        list_journal = [journal_name for i in content_select]
-        list_volume = [volume for i in content_select]
-        list_issue = [issue for i in content_select]
-        list_public_date = [i.find('h6', class_='pub-info').text.split('Published')[-1].strip() for i in
-                            content_select]
-
-        with requests.Session() as session:
-            for i in range(len(content_select)):
-                if len(self.c.execute("select id from papers where head_StrID=:value", {'value': list_head_StrID[i]}).fetchall()) != 0:
-                    list_abstract.append('Exist in db.')
-                    continue
-                _r = session.get(''.join([journal_url, '/_api/v1/articles/', list_data_id[i], '/abstract']), headers=xhr_headers)
-                if _r.status_code == 200:
-                    list_abstract.append(_r.text[3:-4])
-                else:
-                    list_abstract.append('ERROR in get abstract: <Response [{}]>'.format(_r.status_code))
-
-        _zip = zip(list_head_StrID, list_url, list_title, list_authors, list_note, list_abstract,
-                   list_version, list_journal, list_volume, list_issue, list_public_date)
-        for i, item in enumerate(_zip):
-            items.append(item)
-
-        return tabletitle, items
-
-class ApsPRB(PaperSpider, Aps):
-
-    def __init__(self, config):
-        PaperSpider.__init__(self, config)
-        Aps.__init__(self)
-        self.journal_name = 'Phys. Rev. B'
-        self.journal_note = ''
-
-    def get_items(self):
-        journal_url = self.journal_url
-        journal_name = self.journal_name
-        journal_note = self.journal_note
-        xhr_headers = self.xhr_headers
-
-        # get current issue url
-        response = requests.get(journal_url + '/prb/recent')
-        soup = BeautifulSoup(response.text, features='html.parser')
-        current_issue_links = [i.find('a').attrs.get('href') for i in
-                               soup.find('ul', class_='no-bullet').find_all('li')[:-1]]
-
-        # get current issue
-        items = []
-        tabletitle = ['head_StrID', 'url', 'title', 'authors', 'note', 'abstract', 'version', 'journal', 'volume',
-                      'issue', 'public_date']
-
-        content_select = []
-        list_volume = []
-        list_issue = []
-        for current_issue_link in current_issue_links:
-            response = requests.get(journal_url + current_issue_link)
-            soup = BeautifulSoup(response.text, "html.parser")
-
-            vol_issue = soup.find('section', id='title').h2.text
-            volume, issue = re.findall(r'\d+', vol_issue)
-
-            content = soup.find('div', id='toc-content')
-            content = content.find_all('div', class_='article panel article-result')
-            content_select += content
-            list_volume += [volume for i in content]
-            list_issue += [issue for i in content]
-
-        list_data_id = [i.attrs['data-id'] for i in content_select]
-        list_head_StrID = [i.split('/')[-1] for i in list_data_id]
-        list_url = [journal_url + i.a.attrs['href'] for i in content_select]
-        list_title = [i.a.text for i in content_select]
-        list_authors = [i.find('h6', class_='authors').text for i in content_select]
-        list_note = [journal_note for i in content_select]
-        list_abstract = []
-        list_version = ['published' for i in content_select]
-        list_journal = [journal_name for i in content_select]
-        list_public_date = [i.find('h6', class_='pub-info').text.split('Published')[-1].strip() for i in content_select]
-
-        with requests.Session() as session:
-            for i in range(len(content_select)):
-                if len(self.c.execute("select id from papers where head_StrID=:value", {'value': list_head_StrID[i]}).fetchall()) != 0:
-                    list_abstract.append('Exist in db.')
-                    continue
-                _r = session.get(''.join([journal_url, '/_api/v1/articles/', list_data_id[i], '/abstract']), headers=xhr_headers)
-                if _r.status_code == 200:
-                    list_abstract.append(_r.text[3:-4])
-                else:
-                    list_abstract.append('ERROR in get abstract: <Response [{}]>'.format(_r.status_code))
-
-        _zip = zip(list_head_StrID, list_url, list_title, list_authors, list_note, list_abstract,
-                   list_version, list_journal, list_volume, list_issue, list_public_date)
-        for i, item in enumerate(_zip):
-            items.append(item)
-
+        for i in _items:
+            if len(self.c.execute("select id from papers where head_StrID='{}'".format(i[0])).fetchall()) != 0:
+                continue
+            items.append(i)
         return tabletitle, items
 
 class ApsPRResearch(PaperSpider, Aps):
@@ -589,70 +411,67 @@ class ApsPRResearch(PaperSpider, Aps):
     def __init__(self, config):
         PaperSpider.__init__(self, config)
         Aps.__init__(self)
+        self.journal_url = r'http://feeds.aps.org/rss/recent/prresearch.xml'
         self.journal_name = 'Phys. Rev. Research'
-        # self.journal_note = 'PRReearch:selected'
+        self.journal_note = 'allPRResearch'
 
     def get_items(self):
-        aps_subjects_label_concerned = self.aps_subjects_label_concerned
-        journal_url = self.journal_url
-        journal_name = self.journal_name
-        journal_note = self.journal_note
-        xhr_headers = self.xhr_headers
-
-        # get current issue url
-        response = requests.get(journal_url + '/prresearch')
-        soup = BeautifulSoup(response.text, features='html.parser')
-        current_issue_link = soup.find('a', id='current-issue-link').attrs.get('href')
-
-        # get current issue
+        tabletitle, _items = get_items_aps_from_rss(self.journal_name, self.journal_url, self.journal_note)
         items = []
-        tabletitle = ['head_StrID', 'url', 'title', 'authors', 'note', 'abstract', 'version', 'journal', 'volume',
-                      'issue', 'public_date']
-        response = requests.get(journal_url + current_issue_link)
-        soup = BeautifulSoup(response.text, "html.parser")
-
-        vol_issue = soup.find('section', id='title').h2.text
-        volume, issue = re.findall(r'\d+', vol_issue)
-
-        content = soup.find('div', id='toc-content')
-        content = content.find_all('div', class_='article-result')
-        content_select = []
-        for i in content:
-            subjects_label = {j.text for j in i.find_all('a', class_='label')}
-            if len(subjects_label & aps_subjects_label_concerned) > 0:
-                content_select.append(i)
-
-        list_data_id = [i.attrs['data-id'] for i in content_select]
-        list_head_StrID = [i.split('/')[-1] for i in list_data_id]
-        list_url = [journal_url + i.a.attrs['href'] for i in content_select]
-        list_title = [i.a.text for i in content_select]
-        list_authors = [i.find('h6', class_='authors').text for i in content_select]
-        list_note = [journal_note for i in content_select]
-        list_abstract = []
-        list_version = ['published' for i in content_select]
-        list_journal = [journal_name for i in content_select]
-        list_volume = [volume for i in content_select]
-        list_issue = [issue for i in content_select]
-        list_public_date = [i.find('h6', class_='pub-info').text.split('Published')[-1].strip() for i in
-                            content_select]
-
-        with requests.Session() as session:
-            for i in range(len(content_select)):
-                if len(self.c.execute("select id from papers where head_StrID=:value", {'value': list_head_StrID[i]}).fetchall()) != 0:
-                    list_abstract.append('Exist in db.')
-                    continue
-                _r = session.get(''.join([journal_url, '/_api/v1/articles/', list_data_id[i], '/abstract']), headers=xhr_headers)
-                if _r.status_code == 200:
-                    list_abstract.append(_r.text[3:-4])
-                else:
-                    list_abstract.append('ERROR in get abstract: <Response [{}]>'.format(_r.status_code))
-
-        _zip = zip(list_head_StrID, list_url, list_title, list_authors, list_note, list_abstract,
-                   list_version, list_journal, list_volume, list_issue, list_public_date)
-        for i, item in enumerate(_zip):
-            items.append(item)
-
+        for i in _items:
+            if len(self.c.execute("select id from papers where head_StrID='{}'".format(i[0])).fetchall()) != 0:
+                continue
+            items.append(i)
         return tabletitle, items
+
+class ApsPRB(PaperSpider, Aps):
+
+    def __init__(self, config):
+        PaperSpider.__init__(self, config)
+        Aps.__init__(self)
+        self.journal_url = r'http://feeds.aps.org/rss/recent/prb.xml'
+        self.journal_name = 'Phys. Rev. B'
+        self.journal_note = 'allPRB'
+
+    def get_items(self):
+        tabletitle, _items = get_items_aps_from_rss(self.journal_name, self.journal_url, self.journal_note)
+        items = []
+        for i in _items:
+            if len(self.c.execute("select id from papers where head_StrID='{}'".format(i[0])).fetchall()) != 0:
+                continue
+            items.append(i)
+        return tabletitle, items
+
+def get_items_aps_from_rss(journal_name, journal_url, journal_note):
+    # get current issue
+    response = requests.get(journal_url)
+    soup = BeautifulSoup(response.text, "xml")
+    content_select = soup.find_all('item')
+
+    # parse the results
+    items = []
+    tabletitle = ['head_StrID', 'url', 'title', 'authors', 'note', 'abstract', 'version', 'journal', 'volume',
+                  'issue', 'public_date']
+
+    list_title = [i.find('title').text for i in content_select]
+    list_url = [i.find('link').text for i in content_select]
+    list_authors = [i.find('dc:creator').text for i in content_select]
+    list_head_StrID = [i.find('prism:doi').text.split('/')[-1] for i in content_select]
+    list_abstract = [i.find('description').text for i in content_select]
+    list_version = ['published' for i in content_select]
+    # list_note = [i.find('description').text.split('<p>')[1].split('</p>')[0] for i in content_select]
+    list_note = [journal_note for i in content_select]
+    list_journal = [journal_name for i in content_select]
+    list_volume = [i.find('prism:volume').text for i in content_select]
+    list_issue = [i.find('prism:number').text for i in content_select]
+    list_public_date = [i.find('prism:publicationDate').text.split('T')[0] for i in content_select]
+
+    _zip = zip(list_head_StrID, list_url, list_title, list_authors, list_note, list_abstract,
+               list_version, list_journal, list_volume, list_issue, list_public_date)
+    for i, item in enumerate(_zip):
+        items.append(item)
+
+    return tabletitle, items
 
 '''
   * Nature spider
@@ -747,6 +566,23 @@ def get_items_nature(journal_name, journal_url, journal_note):
 
     return tabletitle, items
 
+# def get_html_headless_firefox(url):
+#     # Set up headless options for Firefox
+#     options = webdriver.FirefoxOptions()
+#     options.add_argument("--headless")  # Run in headless mode
+#
+#     # Create a new instance of the Firefox driver
+#     driver = webdriver.Firefox(service=firefoxservice(GeckoDriverManager().install()), options=options)
+#
+#     # Go to the desired URL
+#     driver.get(url)
+#
+#     # driver.title == 'Just a moment...'
+#
+#     # Get the page source
+#     html_content = driver.page_source
+#     return html_content
+
 '''
   * etc.
 '''
@@ -804,4 +640,3 @@ if __name__ == "__main__":
     # xhr_headers = {
     #     'x-requested-with': 'XMLHttpRequest',
     # }
-
