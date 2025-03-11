@@ -481,7 +481,7 @@ class Nature(PaperSpider):
     def __init__(self, config):
         PaperSpider.__init__(self, config)
         self.journal_name = 'Nature'
-        self.journal_url = r'https://www.nature.com/subjects/physical-sciences/nature'
+        self.journal_url = r'https://www.nature.com/subjects/condensed-matter-physics/nature'
         self.journal_note = 'All_Nat' # add to tag to receive all papers from Nature
     def get_items(self):
         return get_items_nature(self.journal_name, self.journal_url, self.journal_note)
@@ -490,7 +490,7 @@ class Nature_Physics(PaperSpider):
     def __init__(self, config):
         PaperSpider.__init__(self, config)
         self.journal_name = 'Nature Physics'
-        self.journal_url = r'https://www.nature.com/subjects/physical-sciences/nphys'
+        self.journal_url = r'https://www.nature.com/subjects/condensed-matter-physics/nphys'
         self.journal_note = 'All_Nat_Phys' # add to tag to receive all papers from Nat. Phys.
     def get_items(self):
         return get_items_nature(self.journal_name, self.journal_url, self.journal_note)
@@ -499,7 +499,7 @@ class Nature_Materials(PaperSpider):
     def __init__(self, config):
         PaperSpider.__init__(self, config)
         self.journal_name = 'Nature Materials'
-        self.journal_url = r'https://www.nature.com/subjects/physical-sciences/nmat'
+        self.journal_url = r'https://www.nature.com/subjects/condensed-matter-physics/nmat'
         self.journal_note = 'All_Nat_Mater' # add to tag to receive all papers from Nat. Mater.
     def get_items(self):
         return get_items_nature(self.journal_name, self.journal_url, self.journal_note)
@@ -508,7 +508,7 @@ class Nature_Nanotechnology(PaperSpider):
     def __init__(self, config):
         PaperSpider.__init__(self, config)
         self.journal_name = 'Nature Nanotechnology'
-        self.journal_url = r'https://www.nature.com/subjects/physical-sciences/nnano'
+        self.journal_url = r'https://www.nature.com/subjects/condensed-matter-physics/nnano'
         self.journal_note = 'All_Nat_Nanotechnol' # add to tag to receive all papers from Nat. Nanotechnol.
     def get_items(self):
         return get_items_nature(self.journal_name, self.journal_url, self.journal_note)
@@ -517,7 +517,7 @@ class Nature_Communications(PaperSpider):
     def __init__(self, config):
         PaperSpider.__init__(self, config)
         self.journal_name = 'Nature Communications'
-        self.journal_url = r'https://www.nature.com/subjects/physical-sciences/ncomms'
+        self.journal_url = r'https://www.nature.com/subjects/condensed-matter-physics/ncomms'
         self.journal_note = 'All_Nat_Comm' # add to tag to receive all papers from Nat. Comm.
     def get_items(self):
         return get_items_nature(self.journal_name, self.journal_url, self.journal_note)
